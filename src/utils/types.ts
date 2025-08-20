@@ -63,3 +63,25 @@ export type UpdateAdminParams = {
     displayName?: string;
     isActive?: boolean;
 }
+
+export type CreateProfileParams = {
+    phoneNumber?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    dateOfBirth: Date;
+    userId?: string;
+}
+
+export type UpdateProfileParams = {
+    phoneNumber?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    dateOfBirth?: Date;
+    userId?: string;
+}

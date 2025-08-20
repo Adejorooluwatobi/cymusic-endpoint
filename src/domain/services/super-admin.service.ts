@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateSuperAdminDto } from 'src/application/dto/super-admin/create-super-admin.dto';
 import { PrismaSuperAdminRepository } from 'src/infrastructure/persistence/prisma/prisma-super-admin.repository';
 import { UserEntity } from '../entities/user.entity';
+import { CreateSuperAdminParams } from 'src/utils/types';
 
 @Injectable()
 export class SuperAdminService {
   constructor(private readonly superAdminRepository: PrismaSuperAdminRepository) {}
 
-  async createSuperAdmin(createSuperAdminDto: CreateSuperAdminDto): Promise<UserEntity> {
-    if (!createSuperAdminDto.email || !createSuperAdminDto.password) {
+  async createSuperAdmin(superAdminDetails: CreateSuperAdminParams): Promise<UserEntity> {
+    if (!superAdminDetails.email || !superAdminDetails.password) {
       throw new Error('Email and password are required');
     }
-    const existingSuperAdmin = await this.superAdminRepository.findByEmail(createSuperAdminDto.email);
+    const existingSuperAdmin = await this.superAdminRepository.findByEmail(superAdminDetails.email);
     if (existingSuperAdmin) {
-      throw new Error(`Super Admin with email ${createSuperAdminDto.email} already exists`);
+      throw new Error(`Super Admin with email ${superAdminDetails.email} already exists`);
     }
-    const hashedPassword = await bcrypt.hash(createSuperAdminDto.password, 10);
+    const hashedPassword = await bcrypt.hash(superAdminDetails.password, 10);
     const superAdmin = await this.superAdminRepository.create({
-      ...createSuperAdminDto,
+      ...superAdminDetails,
       password: hashedPassword,
       isVerified: true,
       isActive: true

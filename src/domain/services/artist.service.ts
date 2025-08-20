@@ -2,23 +2,23 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaArtistRepository } from '../../infrastructure/persistence/prisma/prisma-artist.repository';
 import { UserEntity } from '../../domain/entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { CreateArtistDto } from 'src/application/dto';
+import { CreateArtistParams } from 'src/utils/types';
 
 @Injectable()
 export class ArtistService {
   constructor(private readonly artistRepository: PrismaArtistRepository) {}
 
-  async createArtist(createArtistDto: CreateArtistDto): Promise<UserEntity> {
-    if (!createArtistDto.email || !createArtistDto.password) {
+  async createArtist(artistDetails: CreateArtistParams): Promise<UserEntity> {
+    if (!artistDetails.email || !artistDetails.password) {
       throw new Error('Email and password are required');
     }
-    const existingArtist = await this.artistRepository.findByEmail(createArtistDto.email);
+    const existingArtist = await this.artistRepository.findByEmail(artistDetails.email);
     if (existingArtist) {
-      throw new ConflictException(`Artist with email ${createArtistDto.email} already exists`);
+      throw new ConflictException(`Artist with email ${artistDetails.email} already exists`);
     }
-    const hashedPassword = await bcrypt.hash(createArtistDto.password, 10);
+    const hashedPassword = await bcrypt.hash(artistDetails.password, 10);
     const newArtist = await this.artistRepository.create({
-      ...createArtistDto,
+      ...artistDetails,
       password: hashedPassword,
       isVerified: false,
       isActive: true

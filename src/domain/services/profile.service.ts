@@ -1,18 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import { CreateProfileDto } from "src/application/dto/profile/create-profile.dto";
 import { PrismaProfileRepository } from "src/infrastructure/persistence/prisma/prisma-profile.repository";
 import { ProfileEntity } from "../entities/profile.entity";
+import { CreateProfileParams } from "src/utils/types";
 
 @Injectable()
 export class ProfileService {
     constructor(private readonly profileRepository: PrismaProfileRepository) {}
 
-    async createProfile(createProfileDto: CreateProfileDto, userId: string, userType: string): Promise<ProfileEntity> {
+    async createProfile(profileDetails: CreateProfileParams, userId: string, userType: string): Promise<ProfileEntity> {
         const existingProfile = await this.profileRepository.findByUserId(userId, userType);
         if (existingProfile) {
             throw new Error(`Profile already exists for this user`);
         }
-        const { userId: _, ...profileData } = createProfileDto;
+        const { userId: _, ...profileData } = profileDetails;
         const profileCreateData: any = { ...profileData };
         
         // Set the appropriate user ID field based on user type

@@ -1,24 +1,24 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateAdminDto } from 'src/application/dto/admin/create-admin.dto';
 import { PrismaAdminRepository } from 'src/infrastructure/persistence/prisma/prisma-admin.repository';
 import { UserEntity } from '../entities/user.entity';
+import { CreateAdminParams } from 'src/utils/types';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly adminRepository: PrismaAdminRepository) {}
 
-  async createAdmin(createAdminDto: CreateAdminDto): Promise<UserEntity> {
-    if (!createAdminDto.email || !createAdminDto.password) {
+  async createAdmin(adminDetails: CreateAdminParams): Promise<UserEntity> {
+    if (!adminDetails.email || !adminDetails.password) {
       throw new Error('Email and password are required');
     }
-    const existingAdmin = await this.adminRepository.findByEmail(createAdminDto.email);
+    const existingAdmin = await this.adminRepository.findByEmail(adminDetails.email);
     if (existingAdmin) {
-      throw new ConflictException(`Admin with email ${createAdminDto.email} already exists`);
+      throw new ConflictException(`Admin with email ${adminDetails.email} already exists`);
     }
-    const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
+    const hashedPassword = await bcrypt.hash(adminDetails.password, 10);
     const newAdmin = await this.adminRepository.create({
-      ...createAdminDto,
+      ...adminDetails,
       password: hashedPassword,
       isVerified: true,
       isActive: true,
