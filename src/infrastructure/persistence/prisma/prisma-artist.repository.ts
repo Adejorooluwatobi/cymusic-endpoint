@@ -47,6 +47,31 @@ export class PrismaArtistRepository {
     }) : null;
   }
 
+    async findAll(): Promise<UserEntity[]> {
+    const artist = await this.prisma.artist.findMany({
+      include: { profile: true }
+    });
+    return artist.map(user => new UserEntity({
+      id: user.id,
+      email: user.email,
+      password: user.password ?? undefined,
+      displayName: user.displayName,
+      isActive: user.isActive,
+      isVerified: user.isVerified,
+      googleId: user.googleId ?? undefined,
+      appleId: user.appleId ?? undefined,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      profile: user.profile ? new ProfileEntity({
+        ...user.profile,
+        userId: user.profile.userId ?? undefined,
+        adminId: user.profile.adminId ?? undefined,
+        superAdminId: user.profile.superAdminId ?? undefined,
+        artistId: user.profile.artistId ?? undefined
+      }) : undefined
+    }));
+  }
+
   async create(artistData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
     const { email, password, displayName, isActive, isVerified, googleId, appleId } = artistData;
     const artist = await this.prisma.artist.create({ 

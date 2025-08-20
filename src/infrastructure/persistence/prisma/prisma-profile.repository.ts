@@ -33,6 +33,13 @@ export class PrismaProfileRepository {
         return profile ? this.transformProfile(profile) : null;
     }
 
+    async findAll(): Promise<ProfileEntity[]> {
+        const profiles = await this.prisma.profile.findMany({ 
+            include: { user: true, admin: true, superAdmin: true, artist: true }
+        });
+        return profiles.map(profile => this.transformProfile(profile));
+    }
+
     async findByUserId(userId: string, userType: string = 'user'): Promise<ProfileEntity | null> {
         const whereClause: any = {};
         const includeClause: any = {};

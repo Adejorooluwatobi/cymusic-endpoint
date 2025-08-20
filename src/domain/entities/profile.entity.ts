@@ -8,7 +8,7 @@ export class ProfileEntity {
     state: string;
     country: string;
     postalCode: string;
-    dateOfBirth: Date;
+    dateOfBirth: string;
     createdAt: Date;
     updatedAt: Date;
     userId?: string;

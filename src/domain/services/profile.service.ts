@@ -29,6 +29,10 @@ export class ProfileService {
         return this.profileRepository.findByUserId(userId, userType);
     }
 
+    async getAllProfiles(): Promise<ProfileEntity[]> {
+        return this.profileRepository.findAll();
+    }
+
     async getProfileById(id: string): Promise<ProfileEntity | null> {
         return this.profileRepository.findById(id);
     }

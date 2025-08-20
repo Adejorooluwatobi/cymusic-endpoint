@@ -28,7 +28,8 @@ export class SuperAdminService {
   }
 
   async findAllSuperAdmin(): Promise<UserEntity[]> {
-    return [];
+    const superAdmins = await this.superAdminRepository.findAll();
+    return superAdmins;
   }
 
   async findOneSuperAdmin(id: string): Promise<UserEntity | null> {

@@ -55,6 +55,29 @@ export class PrismaAdminRepository {
     }) : null;
   }
 
+    async findAll(): Promise<UserEntity[]> {
+    const admin = await this.prisma.admin.findMany({
+      include: { profile: true }
+    });
+    return admin.map(user => new UserEntity({
+      id: user.id,
+      email: user.email,
+      password: user.password ?? undefined,
+      displayName: user.displayName,
+      isActive: user.isActive,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      profile: user.profile ? new ProfileEntity({
+        ...user.profile,
+        userId: user.profile.userId ?? undefined,
+        adminId: user.profile.adminId ?? undefined,
+        superAdminId: user.profile.superAdminId ?? undefined,
+        artistId: user.profile.artistId ?? undefined
+      }) : undefined
+    }));
+  }
+
   async create(adminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
     const { email, password, displayName, isActive, isVerified } = adminData;
     const admin = await this.prisma.admin.create({ 

@@ -28,7 +28,8 @@ export class AdminService {
   }
 
   async findAllAdmin(): Promise<UserEntity[]> {
-    return [];
+    const admins = await this.adminRepository.findAll();
+    return admins;
   }
 
   async findOneAdmin(id: string): Promise<UserEntity | null> {

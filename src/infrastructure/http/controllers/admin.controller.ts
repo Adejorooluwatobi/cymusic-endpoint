@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request } from '@nestjs/common';
 import { CreateAdminDto } from '../../../application/dto/admin/create-admin.dto';
 import { AdminService } from 'src/domain/services/admin.service';
-import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiExtraModels } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@ApiExtraModels(CreateAdminDto)
 @Controller('admins')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}

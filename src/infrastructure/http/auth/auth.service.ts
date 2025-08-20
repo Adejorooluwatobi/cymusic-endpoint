@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-// import { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AdminService } from 'src/domain/services/admin.service';
@@ -20,14 +20,14 @@ export class AuthService {
   private readonly jwtSecret: string;
 
   constructor(
-    // private configService: ConfigService,
+    private configService: ConfigService,
     private jwtService: JwtService,
     private userService: UserService,
     private adminService: AdminService,
     private artistService: ArtistService,
     private superAdminService: SuperAdminService,
   ) {
-    this.jwtSecret = 'your-very-secret-key'; // <-- Set your JWT secret here
+    this.jwtSecret = this.configService.get('JWT_SECRET') || 'your_super_secret_jwt_key_change_in_production';
   }
 
   async hashPassword(password: string): Promise<string> {

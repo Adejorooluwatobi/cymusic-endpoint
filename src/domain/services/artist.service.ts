@@ -28,7 +28,8 @@ export class ArtistService {
   }
 
   async findAllArtist(): Promise<UserEntity[]> {
-    return [];
+    const artists = await this.artistRepository.findAll();
+    return artists;
   }
 
   async findOneArtist(id: string): Promise<UserEntity | null> {

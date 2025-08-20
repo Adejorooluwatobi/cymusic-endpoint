@@ -71,7 +71,7 @@ export type CreateProfileParams = {
     state?: string;
     country?: string;
     postalCode?: string;
-    dateOfBirth: Date;
+    dateOfBirth: string;
     userId?: string;
 }
 
@@ -82,6 +82,6 @@ export type UpdateProfileParams = {
     state?: string;
     country?: string;
     postalCode?: string;
-    dateOfBirth?: Date;
+    dateOfBirth?: string;
     userId?: string;
 }

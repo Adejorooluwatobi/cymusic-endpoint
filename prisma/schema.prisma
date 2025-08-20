@@ -67,7 +67,7 @@ model Profile {
   state       String
   country     String
   postalCode  String
-  dateOfBirth DateTime
+  dateOfBirth String
   userId      String?     @unique
   adminId     String?     @unique
   superAdminId String?    @unique
