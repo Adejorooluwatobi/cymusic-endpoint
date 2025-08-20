@@ -26,12 +26,8 @@ export class AuthService {
     private adminService: AdminService,
     private artistService: ArtistService,
     private superAdminService: SuperAdminService,
-
   ) {
-    // this.jwtSecret = this.configService.get<string>('JWT_SECRET') || '';
-    // if (!this.jwtSecret) {
-    //   throw new Error('JWT_SECRET is not defined in environment variables.');
-    // }
+    this.jwtSecret = 'your-very-secret-key'; // <-- Set your JWT secret here
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -48,18 +44,23 @@ export class AuthService {
     });
   }
   async loginUser(email: string, password: string): Promise<AuthResponse> {
-    const user = await this.userService.findOneUser(email);
-    if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
-      throw new Error('Invalid email or password');
+    try {
+      const user = await this.userService.findByEmail(email);
+      if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
+        throw new Error('Invalid email or password');
+      }
+
+      const payload = { sub: user.id, email: user.email, role: 'user' };
+      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+
+      return {
+        access_token: accessToken,
+        user: {isAdmin: false, isActive: user.isActive, name: user.displayName, role: 'USER' },
+      };
+    } catch (error) {
+      console.error('User login error:', error);
+      throw error;
     }
-
-    const payload = { email: user.email, role: 'USER' };
-    const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-
-    return {
-      access_token: accessToken,
-      user: {isAdmin: false, isActive: user.isActive, name: user.displayName, role: 'USER' },
-    };
   }
 
   async registerAdmin(_email: string, _hashedPassword: string): Promise<void> {
@@ -72,13 +73,18 @@ export class AuthService {
   }
 
   async loginAdmin(_email: string, _password: string): Promise<AuthResponse> {
-    const admin = await this.adminService.findOneAdmin(_email);
-    if (!admin || !admin.password || !(await bcrypt.compare(_password, admin.password))) {
-      throw new Error('Invalid email or password');
+    try {
+      const admin = await this.adminService.findByEmail(_email);
+      if (!admin || !admin.password || !(await bcrypt.compare(_password, admin.password))) {
+        throw new Error('Invalid email or password');
+      }
+      const payload = { sub: admin.id, email: admin.email, role: 'admin' };
+      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      return { access_token: accessToken, admin: { isAdmin: true, isActive: admin.isActive, name: admin.displayName, role: 'ADMIN' } };
+    } catch (error) {
+      console.error('Admin login error:', error);
+      throw error;
     }
-    const payload = { email: admin.email };
-    const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-    return { access_token: accessToken, admin: { isAdmin: true, isActive: admin.isActive, name: admin.displayName, role: 'ADMIN' } };
   }
 
   async registerSuperAdmin(_email: string, _hashedPassword: string): Promise<void> {
@@ -91,13 +97,18 @@ export class AuthService {
   }
 
   async loginSuperAdmin(_email: string, _password: string): Promise<AuthResponse> {
-    const superAdmin = await this.superAdminService.findOneSuperAdmin(_email);
-    if (!superAdmin || !superAdmin.password || !(await bcrypt.compare(_password, superAdmin.password))) {
-      throw new Error('Invalid email or password');
+    try {
+      const superAdmin = await this.superAdminService.findByEmail(_email);
+      if (!superAdmin || !superAdmin.password || !(await bcrypt.compare(_password, superAdmin.password))) {
+        throw new Error('Invalid email or password');
+      }
+      const payload = { sub: superAdmin.id, email: superAdmin.email, role: 'super_admin' };
+      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      return { access_token: accessToken, superAdmin: { isAdmin: true, isActive: superAdmin.isActive, name: superAdmin.displayName, role: 'SUPER_ADMIN' } };
+    } catch (error) {
+      console.error('SuperAdmin login error:', error);
+      throw error;
     }
-    const payload = { email: superAdmin.email };
-    const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-    return { access_token: accessToken, superAdmin: { isAdmin: true, isActive: superAdmin.isActive, name: superAdmin.displayName, role: 'SUPER_ADMIN' } };
   }
 
   async registerArtist(_email: string, _hashedPassword: string): Promise<void> {
@@ -110,12 +121,17 @@ export class AuthService {
   }
 
   async loginArtist(_email: string, _password: string): Promise<AuthResponse> {
-    const artist = await this.artistService.findOneArtist(_email);
-    if (!artist || !artist.password || !(await bcrypt.compare(_password, artist.password))) {
-      throw new Error('Invalid email or password');
+    try {
+      const artist = await this.artistService.findByEmail(_email);
+      if (!artist || !artist.password || !(await bcrypt.compare(_password, artist.password))) {
+        throw new Error('Invalid email or password');
+      }
+      const payload = { sub: artist.id, email: artist.email, role: 'artist' };
+      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      return { access_token: accessToken, artist: { isAdmin: false, isActive: artist.isActive, name: artist.displayName, role: 'ARTIST' } };
+    } catch (error) {
+      console.error('Artist login error:', error);
+      throw error;
     }
-    const payload = { email: artist.email };
-    const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-    return { access_token: accessToken, artist: { isAdmin: false, isActive: artist.isActive, name: artist.displayName, role: 'ARTIST' } };
   }
 }

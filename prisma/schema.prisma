@@ -16,6 +16,7 @@ model User {
   isActive    Boolean  @default(true)
   googleId    String?
   appleId     String?
+  profile     Profile?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -27,6 +28,7 @@ model Admin {
   displayName String
   isActive    Boolean  @default(true)
   isVerified  Boolean  @default(true)
+  profile     Profile?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -38,6 +40,7 @@ model SuperAdmin {
   displayName String
   isActive    Boolean  @default(true)
   isVerified  Boolean  @default(true)
+  profile     Profile?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -51,6 +54,28 @@ model Artist {
   isVerified  Boolean  @default(false)
   googleId    String?
   appleId     String?
+  profile     Profile?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Profile {
+  id          String      @id @default(cuid())
+  phoneNumber String
+  address     String
+  city        String
+  state       String
+  country     String
+  postalCode  String
+  dateOfBirth DateTime
+  userId      String?     @unique
+  adminId     String?     @unique
+  superAdminId String?    @unique
+  artistId    String?     @unique
+  user        User?       @relation(fields: [userId], references: [id])
+  admin       Admin?      @relation(fields: [adminId], references: [id])
+  superAdmin  SuperAdmin? @relation(fields: [superAdminId], references: [id])
+  artist      Artist?     @relation(fields: [artistId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }

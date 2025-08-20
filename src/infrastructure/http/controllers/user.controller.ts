@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Put, Body, Param, ValidationPipe, ParseUUIDPipe, Delete } from '@nestjs/common';
-import { ApiExtraModels, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Body, Param, ValidationPipe, ParseUUIDPipe, Delete, UseGuards, Request } from '@nestjs/common';
+import { ApiExtraModels, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/application/dto/user/create-user.dto';
 import { UpdateUserDto } from 'src/application/dto/user/update-user.dto';
 import { UserService } from 'src/domain/services/user.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiExtraModels(CreateUserDto)
 @Controller('users')
@@ -70,5 +71,30 @@ export class UserController {
       succeeded: true,
       message: 'User deleted successfully'
     };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user info with profile' })
+  async getMe(@Request() req: any) {
+    const userInfo = this.extractUserId(req.user);
+    const user = await this.userService.findOneUser(userInfo.id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return {
+      succeeded: true,
+      message: 'User info retrieved successfully',
+      resultData: user
+    };
+  }
+
+  private extractUserId(user: any): { id: string; type: string } {
+    if (user.user?.id) return { id: user.user.id, type: 'user' };
+    if (user.admin?.id) return { id: user.admin.id, type: 'admin' };
+    if (user.superAdmin?.id) return { id: user.superAdmin.id, type: 'superAdmin' };
+    if (user.artist?.id) return { id: user.artist.id, type: 'artist' };
+    throw new Error('User ID not found in token');
   }
 }

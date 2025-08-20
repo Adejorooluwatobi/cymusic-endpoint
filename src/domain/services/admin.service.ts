@@ -21,7 +21,7 @@ export class AdminService {
       ...createAdminDto,
       password: hashedPassword,
       isVerified: true,
-      isActive: true
+      isActive: true,
     });
     console.log(`Admin created successfully: ${newAdmin.email}`);
     return newAdmin;

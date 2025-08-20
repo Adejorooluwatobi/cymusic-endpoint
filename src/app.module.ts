@@ -7,6 +7,7 @@ import { FilesModule } from './shared/files/files.module'
 // import { GraphQLModule } from '@nestjs/graphql';
 // import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthModule } from './infrastructure/http/auth/auth.module';
+import { ProfileModule } from './infrastructure/http/modules/profile.module';
 import { AppGateway } from './shared/websockets/app.gateway';
 // import { AppResolver } from './application/graphql/app.resolver';
 
@@ -29,6 +30,7 @@ import { LoggingMiddleware } from './shared/middleware/logging.middleware';
     //   debug: true,
     // }),
     AuthModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway, ]//AppResolver],

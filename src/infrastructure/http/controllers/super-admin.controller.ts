@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request } from '@nestjs/common';
 import { CreateSuperAdminDto } from '../../../application/dto/super-admin/create-super-admin.dto';
 import { SuperAdminService } from 'src/domain/services/super-admin.service';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('super-admins')
 export class SuperAdminController {
@@ -67,6 +68,25 @@ export class SuperAdminController {
     return {
       succeeded: true,
       message: 'Super Admin deleted successfully'
+    };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current super admin info with profile' })
+  async getMe(@Request() req: any) {
+    if (!req.user.superAdmin?.id) {
+      throw new Error('Super Admin not found in token');
+    }
+    const superAdmin = await this.superAdminService.findOneSuperAdmin(req.user.superAdmin.id);
+    if (!superAdmin) {
+      throw new Error('Super Admin not found');
+    }
+    return {
+      succeeded: true,
+      message: 'Super Admin info retrieved successfully',
+      resultData: superAdmin
     };
   }
 }

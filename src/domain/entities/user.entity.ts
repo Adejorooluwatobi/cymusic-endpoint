@@ -1,3 +1,4 @@
+import { ProfileEntity } from './profile.entity';
 export class UserEntity {
   id: string;
   email: string;
@@ -9,6 +10,7 @@ export class UserEntity {
   appleId?: string;
   createdAt: Date;
   updatedAt: Date;
+  profile?: ProfileEntity;
 
   constructor(data: Partial<UserEntity>) {
     Object.assign(this, data);

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ValidationPipe, Delete, Put, UseGuards, Request } from '@nestjs/common';
 import { ArtistService } from '../../../domain/services/artist.service';
 import { CreateArtistDto } from '../../../application/dto/artist/create-artist.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('artists')
 export class ArtistController {
@@ -67,6 +68,25 @@ export class ArtistController {
     return {
       succeeded: true,
       message: 'Artist deleted successfully'
+    };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current artist info with profile' })
+  async getMe(@Request() req: any) {
+    if (!req.user.artist?.id) {
+      throw new Error('Artist not found in token');
+    }
+    const artist = await this.artistService.findOneArtist(req.user.artist.id);
+    if (!artist) {
+      throw new Error('Artist not found');
+    }
+    return {
+      succeeded: true,
+      message: 'Artist info retrieved successfully',
+      resultData: artist
     };
   }
 }

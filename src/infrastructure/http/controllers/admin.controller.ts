@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request } from '@nestjs/common';
 import { CreateAdminDto } from '../../../application/dto/admin/create-admin.dto';
 import { AdminService } from 'src/domain/services/admin.service';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('admins')
 export class AdminController {
@@ -67,6 +68,25 @@ export class AdminController {
     return {
       succeeded: true,
       message: 'Admin deleted successfully'
+    };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current admin info with profile' })
+  async getMe(@Request() req: any) {
+    if (!req.user.admin?.id) {
+      throw new Error('Admin not found in token');
+    }
+    const admin = await this.adminService.findOneAdmin(req.user.admin.id);
+    if (!admin) {
+      throw new Error('Admin not found');
+    }
+    return {
+      succeeded: true,
+      message: 'Admin info retrieved successfully',
+      resultData: admin
     };
   }
 }
