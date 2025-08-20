@@ -10,10 +10,9 @@ export class PrismaArtistRepository {
     const artist = await this.prisma.artist.findUnique({ where: { id } });
     return artist ? new UserEntity({
       ...artist,
-      role: 'ARTIST',
       password: artist.password ?? undefined,
       googleId: artist.googleId ?? undefined,
-      appleId: artist.appleId ?? undefined,
+      appleId: artist.appleId ?? undefined
     }) : null;
   }
 
@@ -21,21 +20,19 @@ export class PrismaArtistRepository {
     const artist = await this.prisma.artist.findUnique({ where: { email } });
     return artist ? new UserEntity({
       ...artist,
-      role: 'ARTIST',
       password: artist.password ?? undefined,
       googleId: artist.googleId ?? undefined,
-      appleId: artist.appleId ?? undefined,
+      appleId: artist.appleId ?? undefined
     }) : null;
   }
 
-  async create(artistData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt' | 'role'>): Promise<UserEntity> {
+  async create(artistData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
     const artist = await this.prisma.artist.create({ data: artistData as any });
     return new UserEntity({
       ...artist,
-      role: 'ARTIST',
       password: artist.password ?? undefined,
       googleId: artist.googleId ?? undefined,
-      appleId: artist.appleId ?? undefined,
+      appleId: artist.appleId ?? undefined
     });
   }
 
@@ -43,10 +40,9 @@ export class PrismaArtistRepository {
     const artist = await this.prisma.artist.update({ where: { id }, data: artistData as any });
     return new UserEntity({
       ...artist,
-      role: 'ARTIST',
       password: artist.password ?? undefined,
       googleId: artist.googleId ?? undefined,
-      appleId: artist.appleId ?? undefined,
+      appleId: artist.appleId ?? undefined
     });
   }
 

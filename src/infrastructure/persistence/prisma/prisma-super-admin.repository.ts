@@ -10,8 +10,7 @@ export class PrismaSuperAdminRepository {
     const superAdmin = await this.prisma.superAdmin.findUnique({ where: { id } });
     return superAdmin ? new UserEntity({
       ...superAdmin,
-      role: 'SUPER_ADMIN',
-      password: superAdmin.password ?? undefined,
+      password: superAdmin.password ?? undefined
     }) : null;
   }
 
@@ -19,17 +18,15 @@ export class PrismaSuperAdminRepository {
     const superAdmin = await this.prisma.superAdmin.findUnique({ where: { email } });
     return superAdmin ? new UserEntity({
       ...superAdmin,
-      role: 'SUPER_ADMIN',
-      password: superAdmin.password ?? undefined,
+      password: superAdmin.password ?? undefined
     }) : null;
   }
 
-  async create(superAdminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt' | 'role'>): Promise<UserEntity> {
+  async create(superAdminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
     const superAdmin = await this.prisma.superAdmin.create({ data: superAdminData as any });
     return new UserEntity({
       ...superAdmin,
-      role: 'SUPER_ADMIN',
-      password: superAdmin.password ?? undefined,
+      password: superAdmin.password ?? undefined
     });
   }
 
@@ -37,8 +34,7 @@ export class PrismaSuperAdminRepository {
     const superAdmin = await this.prisma.superAdmin.update({ where: { id }, data: superAdminData as any });
     return new UserEntity({
       ...superAdmin,
-      role: 'SUPER_ADMIN',
-      password: superAdmin.password ?? undefined,
+      password: superAdmin.password ?? undefined
     });
   }
 

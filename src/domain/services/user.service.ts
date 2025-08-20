@@ -20,7 +20,6 @@ export class UserService {
     const newUser = await this.userRepository.create({
       ...userDetails,
       password: hashedPassword,
-      role: 'USER' as const,
       isVerified: false,
       isActive: userDetails.isActive ?? true
     });
@@ -29,9 +28,8 @@ export class UserService {
   }
 
   async findAllUser(): Promise<UserEntity[]> {
-    // TODO: Implement find all users with role USER
-    const user = await this.userRepository.findAll();
-    return user.filter(user => user.role === 'USER');
+    const users = await this.userRepository.findAll();
+    return users;
   }
 
   async findOneUser(id: string): Promise<UserEntity | null> {
@@ -43,7 +41,7 @@ export class UserService {
     if (updateUserDetails.password) {
       updateUserDetails.password = await bcrypt.hash(updateUserDetails.password, 10);
     }
-    const updatedUser = await this.userRepository.update(id, { ...updateUserDetails, role: 'USER' as const });
+    const updatedUser = await this.userRepository.update(id, updateUserDetails);
     console.log(`User updated successfully: ${updatedUser.email}`);
     return updatedUser;
   }

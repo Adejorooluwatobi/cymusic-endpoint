@@ -10,8 +10,7 @@ export class PrismaAdminRepository {
     const admin = await this.prisma.admin.findUnique({ where: { id } });
     return admin ? new UserEntity({
       ...admin,
-      role: 'ADMIN',
-      password: admin.password ?? undefined,
+      password: admin.password ?? undefined
     }) : null;
   }
 
@@ -19,17 +18,15 @@ export class PrismaAdminRepository {
     const admin = await this.prisma.admin.findUnique({ where: { email } });
     return admin ? new UserEntity({
       ...admin,
-      role: 'ADMIN',
-      password: admin.password ?? undefined,
+      password: admin.password ?? undefined
     }) : null;
   }
 
-  async create(adminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt' | 'role'>): Promise<UserEntity> {
+  async create(adminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
     const admin = await this.prisma.admin.create({ data: adminData as any });
     return new UserEntity({
       ...admin,
-      role: 'ADMIN',
-      password: admin.password ?? undefined,
+      password: admin.password ?? undefined
     });
   }
 
@@ -37,8 +34,7 @@ export class PrismaAdminRepository {
     const admin = await this.prisma.admin.update({ where: { id }, data: adminData as any });
     return new UserEntity({
       ...admin,
-      role: 'ADMIN',
-      password: admin.password ?? undefined,
+      password: admin.password ?? undefined
     });
   }
 

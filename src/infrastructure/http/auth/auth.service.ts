@@ -43,7 +43,6 @@ export class AuthService {
       email,
       password: hashedPassword,
       displayName: '',
-      role: 'user',
       isActive: true,
       isVerified: false,
     });
@@ -54,12 +53,12 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    const payload = { email: user.email, role: user.role };
+    const payload = { email: user.email, role: 'USER' };
     const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
 
     return {
       access_token: accessToken,
-      user: {isAdmin: false, isActive: user.isActive, name: user.displayName, role: user.role },
+      user: {isAdmin: false, isActive: user.isActive, name: user.displayName, role: 'USER' },
     };
   }
 
@@ -79,7 +78,7 @@ export class AuthService {
     }
     const payload = { email: admin.email };
     const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-    return { access_token: accessToken, admin: { isAdmin: true, isActive: admin.isActive, name: admin.displayName, role: admin.role } };
+    return { access_token: accessToken, admin: { isAdmin: true, isActive: admin.isActive, name: admin.displayName, role: 'ADMIN' } };
   }
 
   async registerSuperAdmin(_email: string, _hashedPassword: string): Promise<void> {
@@ -98,7 +97,7 @@ export class AuthService {
     }
     const payload = { email: superAdmin.email };
     const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-    return { access_token: accessToken, superAdmin: { isAdmin: true, isActive: superAdmin.isActive, name: superAdmin.displayName, role: superAdmin.role } };
+    return { access_token: accessToken, superAdmin: { isAdmin: true, isActive: superAdmin.isActive, name: superAdmin.displayName, role: 'SUPER_ADMIN' } };
   }
 
   async registerArtist(_email: string, _hashedPassword: string): Promise<void> {
@@ -117,6 +116,6 @@ export class AuthService {
     }
     const payload = { email: artist.email };
     const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
-    return { access_token: accessToken, artist: { isAdmin: false, isActive: artist.isActive, name: artist.displayName, role: artist.role } };
+    return { access_token: accessToken, artist: { isAdmin: false, isActive: artist.isActive, name: artist.displayName, role: 'ARTIST' } };
   }
 }

@@ -1,26 +1,25 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/prisma-user.repository';
+import { PrismaArtistRepository } from '../../infrastructure/persistence/prisma/prisma-artist.repository';
 import { UserEntity } from '../../domain/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { CreateArtistDto } from 'src/application/dto';
 
 @Injectable()
 export class ArtistService {
-  constructor(private readonly userRepository: PrismaUserRepository) {}
+  constructor(private readonly artistRepository: PrismaArtistRepository) {}
 
   async createArtist(createArtistDto: CreateArtistDto): Promise<UserEntity> {
     if (!createArtistDto.email || !createArtistDto.password) {
       throw new Error('Email and password are required');
     }
-    const existingArtist = await this.userRepository.findByEmail(createArtistDto.email);
+    const existingArtist = await this.artistRepository.findByEmail(createArtistDto.email);
     if (existingArtist) {
       throw new ConflictException(`Artist with email ${createArtistDto.email} already exists`);
     }
     const hashedPassword = await bcrypt.hash(createArtistDto.password, 10);
-    const newArtist = await this.userRepository.create({
+    const newArtist = await this.artistRepository.create({
       ...createArtistDto,
       password: hashedPassword,
-      role: 'ARTIST',
       isVerified: false,
       isActive: true
     });
@@ -29,13 +28,11 @@ export class ArtistService {
   }
 
   async findAllArtist(): Promise<UserEntity[]> {
-    // TODO: Implement find all artists
-    const artists = await this.userRepository.findAll();
-    return artists.filter(artist => artist.role === 'ARTIST');
+    return [];
   }
 
   async findOneArtist(id: string): Promise<UserEntity | null> {
-    const artist = await this.userRepository.findById(id);
+    const artist = await this.artistRepository.findById(id);
     return artist;
   }
 
@@ -43,22 +40,22 @@ export class ArtistService {
     if (updateArtistDetails.password) {
       updateArtistDetails.password = await bcrypt.hash(updateArtistDetails.password, 10);
     }
-    const updatedArtist = await this.userRepository.update(id, { ...updateArtistDetails, role: 'ARTIST' });
+    const updatedArtist = await this.artistRepository.update(id, updateArtistDetails);
     console.log(`Artist updated successfully: ${updatedArtist.email}`);
     return updatedArtist;
   }
 
   async deleteArtist(id: string): Promise<void> {
-    const artist = await this.userRepository.findById(id);
+    const artist = await this.artistRepository.findById(id);
     if (!artist) {
       throw new Error(`Artist with id ${id} not found`);
     }
-    await this.userRepository.delete(id);
+    await this.artistRepository.delete(id);
     console.log(`Artist deleted successfully: ${artist.email}`);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
-    const artist = await this.userRepository.findByEmail(email);
+    const artist = await this.artistRepository.findByEmail(email);
     return artist;
   }
 }

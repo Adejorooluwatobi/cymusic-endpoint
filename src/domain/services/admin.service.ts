@@ -28,7 +28,6 @@ export class AdminService {
   }
 
   async findAllAdmin(): Promise<UserEntity[]> {
-    // TODO: Implement find all admins
     return [];
   }
 
