@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request, NotFoundException } from '@nestjs/common';
 import { CreateSuperAdminDto } from '../../../application/dto/super-admin/create-super-admin.dto';
 import { SuperAdminService } from 'src/domain/services/super-admin.service';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -30,7 +30,7 @@ export class SuperAdminController {
       succeeded: true,
       message: 'Super Admins retrieved successfully',
       resultData: superAdmins
-    }
+    };
   }
 
   @Get(':id')
@@ -38,7 +38,7 @@ export class SuperAdminController {
   async findOne(@Param('id') id: string) {
     const superAdmin = await this.superAdminService.findOneSuperAdmin(id);
     if (!superAdmin) {
-      throw new Error(`Super Admin with id ${id} not found`);
+      throw new NotFoundException(`Super Admin with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -52,7 +52,7 @@ export class SuperAdminController {
   async update(@Param('id') id: string, @Body() updateSuperAdminDto: Partial<CreateSuperAdminDto>) {
     const superAdmin = await this.superAdminService.updateSuperAdmin(id, updateSuperAdminDto);
     if (!superAdmin) {
-      throw new Error(`Super Admin with id ${id} not found`);
+      throw new NotFoundException(`Super Admin with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -77,11 +77,11 @@ export class SuperAdminController {
   @ApiOperation({ summary: 'Get current super admin info with profile' })
   async getMe(@Request() req: any) {
     if (!req.user.superAdmin?.id) {
-      throw new Error('Super Admin not found in token');
+      throw new NotFoundException('Super Admin not found in token');
     }
     const superAdmin = await this.superAdminService.findOneSuperAdmin(req.user.superAdmin.id);
     if (!superAdmin) {
-      throw new Error('Super Admin not found');
+      throw new NotFoundException('Super Admin not found');
     }
     return {
       succeeded: true,

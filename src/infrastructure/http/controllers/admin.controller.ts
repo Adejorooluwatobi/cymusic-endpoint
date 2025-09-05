@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ValidationPipe, Put, Delete, UseGuards, Request, NotFoundException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { CreateAdminDto } from '../../../application/dto/admin/create-admin.dto';
 import { AdminService } from 'src/domain/services/admin.service';
 import { ApiOperation, ApiBearerAuth, ApiExtraModels } from '@nestjs/swagger';
@@ -14,7 +14,7 @@ export class AdminController {
   async create(@Body(new ValidationPipe()) createAdminDto: CreateAdminDto) {
     const admin = await this.adminService.createAdmin(createAdminDto);
     if (!admin) {
-      throw new Error('Admin creation failed');
+      throw new InternalServerErrorException('Admin creation failed');
     }
     return {
       succeeded: true,
@@ -39,7 +39,7 @@ export class AdminController {
   async findOne(@Param('id') id: string) {
     const admin = await this.adminService.findOneAdmin(id);
     if (!admin) {
-      throw new Error(`Admin with id ${id} not found`);
+      throw new NotFoundException(`Admin with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -53,7 +53,7 @@ export class AdminController {
   async update(@Param('id') id: string, @Body() updateAdminDto: Partial<CreateAdminDto>) {
     const admin = await this.adminService.updateAdmin(id, updateAdminDto);
     if (!admin) {
-      throw new Error(`Admin with id ${id} not found`);
+      throw new NotFoundException(`Admin with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -78,11 +78,11 @@ export class AdminController {
   @ApiOperation({ summary: 'Get current admin info with profile' })
   async getMe(@Request() req: any) {
     if (!req.user.admin?.id) {
-      throw new Error('Admin not found in token');
+      throw new UnauthorizedException('Admin not found in token');
     }
     const admin = await this.adminService.findOneAdmin(req.user.admin.id);
     if (!admin) {
-      throw new Error('Admin not found');
+      throw new NotFoundException('Admin not found');
     }
     return {
       succeeded: true,

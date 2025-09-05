@@ -15,7 +15,7 @@ import { extname } from 'path';
         },
       }),
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB
+        fileSize: 8 * 1024 * 1024, // 8MB
       },
       fileFilter: (req, file, callback) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {

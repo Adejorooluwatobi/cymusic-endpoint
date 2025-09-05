@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/prisma-user.repository';
 import { UserEntity } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +6,7 @@ import { CreateUserParams, UpdateUserParams } from 'src/utils/types';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(private readonly userRepository: PrismaUserRepository) {}
 
   async createUser(userDetails: CreateUserParams): Promise<UserEntity> {
@@ -23,7 +24,7 @@ export class UserService {
       isVerified: false,
       isActive: userDetails.isActive ?? true
     });
-    console.log(`User created successfully: ${newUser.email}`);
+    this.logger.log('User created successfully', newUser.id);
     return newUser;
   }
 
@@ -42,7 +43,7 @@ export class UserService {
       updateUserDetails.password = await bcrypt.hash(updateUserDetails.password, 10);
     }
     const updatedUser = await this.userRepository.update(id, updateUserDetails);
-    console.log(`User updated successfully: ${updatedUser.email}`);
+    this.logger.log('User updated successfully', updatedUser.id);
     return updatedUser;
   }
 
@@ -52,10 +53,13 @@ export class UserService {
       throw new Error(`User with id ${id} not found`);
     }
     await this.userRepository.delete(id);
-    console.log(`User deleted successfully: ${user.email}`);
+    this.logger.log('User deleted successfully', user.id);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
+    if (!email || typeof email !== 'string') {
+      throw new Error('Valid email is required');
+    }
     return this.userRepository.findByEmail(email);
   }
 }

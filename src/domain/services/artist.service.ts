@@ -23,7 +23,7 @@ export class ArtistService {
       isVerified: false,
       isActive: true
     });
-    console.log(`Artist created successfully: ${newArtist.email}`);
+    console.log('Artist created successfully:', newArtist.email);
     return newArtist;
   }
 

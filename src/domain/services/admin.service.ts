@@ -23,7 +23,7 @@ export class AdminService {
       isVerified: true,
       isActive: true,
     });
-    console.log(`Admin created successfully: ${newAdmin.email}`);
+    console.log('Admin created successfully:', newAdmin.id);
     return newAdmin;
   }
 
@@ -42,7 +42,7 @@ export class AdminService {
       updateAdminDetails.password = await bcrypt.hash(updateAdminDetails.password, 10);
     }
     const updatedAdmin = await this.adminRepository.update(id, updateAdminDetails);
-    console.log(`Admin updated successfully: ${updatedAdmin.email}`);
+    console.log('Admin updated successfully:', updatedAdmin.id);
     return updatedAdmin;
   }
 
@@ -52,7 +52,7 @@ export class AdminService {
       throw new Error(`Admin with id ${id} not found`);
     }
     await this.adminRepository.delete(id);
-    console.log(`Admin deleted successfully: ${admin.email}`);
+    console.log('Admin deleted successfully:', admin.id);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {

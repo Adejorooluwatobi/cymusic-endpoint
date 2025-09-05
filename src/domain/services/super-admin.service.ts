@@ -52,7 +52,7 @@ export class SuperAdminService {
       throw new Error(`Super Admin with id ${id} not found`);
     }
     await this.superAdminRepository.delete(id);
-    console.log(`Super Admin deleted successfully: ${superAdmin.email}`);
+    console.log('Super Admin created successfully:', superAdmin.email);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {

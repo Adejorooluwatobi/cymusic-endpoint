@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -17,6 +17,7 @@ interface AuthResponse {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private readonly jwtSecret: string;
 
   constructor(
@@ -58,7 +59,7 @@ export class AuthService {
         user: {isAdmin: false, isActive: user.isActive, name: user.displayName, role: 'USER' },
       };
     } catch (error) {
-      console.error('User login error:', error);
+      this.logger.error('User login error', error);
       throw error;
     }
   }
@@ -82,7 +83,7 @@ export class AuthService {
       const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
       return { access_token: accessToken, admin: { isAdmin: true, isActive: admin.isActive, name: admin.displayName, role: 'ADMIN' } };
     } catch (error) {
-      console.error('Admin login error:', error);
+      this.logger.error('Admin login error', error);
       throw error;
     }
   }
@@ -106,7 +107,7 @@ export class AuthService {
       const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
       return { access_token: accessToken, superAdmin: { isAdmin: true, isActive: superAdmin.isActive, name: superAdmin.displayName, role: 'SUPER_ADMIN' } };
     } catch (error) {
-      console.error('SuperAdmin login error:', error);
+      this.logger.error('SuperAdmin login error', error);
       throw error;
     }
   }
@@ -130,7 +131,7 @@ export class AuthService {
       const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
       return { access_token: accessToken, artist: { isAdmin: false, isActive: artist.isActive, name: artist.displayName, role: 'ARTIST' } };
     } catch (error) {
-      console.error('Artist login error:', error);
+      this.logger.error('Artist login error', error);
       throw error;
     }
   }

@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { ProfileEntity } from "src/domain/entities/profile.entity";
+import { IProfileRepository } from "src/domain/repositories/profile.repository.interfce";
 
 @Injectable()
-export class PrismaProfileRepository {
+export class PrismaProfileRepository implements IProfileRepository {
     constructor(private readonly prisma: PrismaService) {}
 
     private transformProfile(profile: any): ProfileEntity {
@@ -17,10 +18,10 @@ export class PrismaProfileRepository {
             } : undefined
         });
         
-        // Include other user types if they exist
-        if (profile.admin) transformedProfile.user = profile.admin;
-        if (profile.superAdmin) transformedProfile.user = profile.superAdmin;
-        if (profile.artist) transformedProfile.user = profile.artist;
+        // Set user based on priority: user > admin > superAdmin > artist
+        if (profile.admin && !transformedProfile.user) transformedProfile.user = profile.admin;
+        if (profile.superAdmin && !transformedProfile.user) transformedProfile.user = profile.superAdmin;
+        if (profile.artist && !transformedProfile.user) transformedProfile.user = profile.artist;
         
         return transformedProfile;
     }
@@ -28,6 +29,21 @@ export class PrismaProfileRepository {
     async findById(id: string): Promise<ProfileEntity | null> {
         const profile = await this.prisma.profile.findUnique({ 
             where: { id },
+            include: { user: true, admin: true, superAdmin: true, artist: true }
+        });
+        return profile ? this.transformProfile(profile) : null;
+    }
+
+    async findByEmail(email: string): Promise<ProfileEntity | null> {
+        const profile = await this.prisma.profile.findFirst({
+            where: {
+                OR: [
+                    { user: { email } },
+                    { admin: { email } },
+                    { superAdmin: { email } },
+                    { artist: { email } }
+                ]
+            },
             include: { user: true, admin: true, superAdmin: true, artist: true }
         });
         return profile ? this.transformProfile(profile) : null;
@@ -41,8 +57,13 @@ export class PrismaProfileRepository {
     }
 
     async findByUserId(userId: string, userType: string = 'user'): Promise<ProfileEntity | null> {
-        const whereClause: any = {};
-        const includeClause: any = {};
+        const validUserTypes = ['user', 'admin', 'superAdmin', 'artist'];
+        if (!validUserTypes.includes(userType)) {
+            throw new Error('Invalid user type');
+        }
+        
+        const whereClause: Record<string, string> = {};
+        const includeClause: Record<string, boolean> = {};
         
         if (userType === 'user') {
             whereClause.userId = userId;
@@ -75,6 +96,9 @@ export class PrismaProfileRepository {
     }
 
     async update(id: string, profileData: Partial<Omit<ProfileEntity, 'user'>>): Promise<ProfileEntity> {
+        if (!id || typeof id !== 'string') {
+            throw new Error('Invalid profile ID');
+        }
         const profile = await this.prisma.profile.update({ 
             where: { id }, 
             data: profileData,
@@ -84,6 +108,9 @@ export class PrismaProfileRepository {
     }
 
     async delete(id: string): Promise<void> {
+        if (!id || typeof id !== 'string') {
+            throw new Error('Invalid profile ID');
+        }
         await this.prisma.profile.delete({ where: { id } });
     }
 }

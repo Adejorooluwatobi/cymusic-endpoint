@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, ConflictException } from "@nestjs/common";
 import { PrismaProfileRepository } from "src/infrastructure/persistence/prisma/prisma-profile.repository";
 import { ProfileEntity } from "../entities/profile.entity";
 import { CreateProfileParams } from "src/utils/types";
@@ -10,7 +10,7 @@ export class ProfileService {
     async createProfile(profileDetails: CreateProfileParams, userId: string, userType: string): Promise<ProfileEntity> {
         const existingProfile = await this.profileRepository.findByUserId(userId, userType);
         if (existingProfile) {
-            throw new Error(`Profile already exists for this user`);
+            throw new ConflictException(`Profile already exists for this user`);
         }
         const { userId: _, ...profileData } = profileDetails;
         const profileCreateData: any = { ...profileData };

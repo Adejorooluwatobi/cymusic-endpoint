@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, ValidationPipe, ParseUUIDPipe, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, ValidationPipe, ParseUUIDPipe, Delete, UseGuards, Request, NotFoundException } from '@nestjs/common';
 import { ApiExtraModels, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/application/dto/user/create-user.dto';
 import { UpdateUserDto } from 'src/application/dto/user/update-user.dto';
@@ -40,7 +40,7 @@ export class UserController {
   async findUser(@Param('id') id: string) {
     const user = await this.userService.findOneUser(id);
     if (!user) {
-      throw new Error(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -54,7 +54,7 @@ export class UserController {
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
     const user = await this.userService.updateUser(id, updateUserDto);
     if (!user) {
-      throw new Error(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -81,7 +81,7 @@ export class UserController {
     const userInfo = this.extractUserId(req.user);
     const user = await this.userService.findOneUser(userInfo.id);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
     return {
       succeeded: true,
@@ -95,6 +95,6 @@ export class UserController {
     if (user.admin?.id) return { id: user.admin.id, type: 'admin' };
     if (user.superAdmin?.id) return { id: user.superAdmin.id, type: 'superAdmin' };
     if (user.artist?.id) return { id: user.artist.id, type: 'artist' };
-    throw new Error('User ID not found in token');
+    throw new NotFoundException('User ID not found in token');
   }
 }

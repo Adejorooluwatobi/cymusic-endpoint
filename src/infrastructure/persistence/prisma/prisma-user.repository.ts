@@ -8,6 +8,28 @@ import { ProfileEntity } from '../../../domain/entities/profile.entity';
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private mapToUserEntity(user: any): UserEntity {
+    return new UserEntity({
+      id: user.id,
+      email: user.email,
+      password: user.password ?? undefined,
+      displayName: user.displayName,
+      isActive: user.isActive,
+      isVerified: user.isVerified,
+      googleId: user.googleId ?? undefined,
+      appleId: user.appleId ?? undefined,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      profile: user.profile ? new ProfileEntity({
+        ...user.profile,
+        userId: user.profile.userId ?? undefined,
+        adminId: user.profile.adminId ?? undefined,
+        superAdminId: user.profile.superAdminId ?? undefined,
+        artistId: user.profile.artistId ?? undefined
+      }) : undefined
+    });
+  }
+
   async findById(id: string): Promise<UserEntity | null> {
     const user = await this.prisma.user.findUnique({ 
       where: { id },
@@ -64,25 +86,7 @@ export class PrismaUserRepository implements IUserRepository {
     const users = await this.prisma.user.findMany({
       include: { profile: true }
     });
-    return users.map(user => new UserEntity({
-      id: user.id,
-      email: user.email,
-      password: user.password ?? undefined,
-      displayName: user.displayName,
-      isActive: user.isActive,
-      isVerified: user.isVerified,
-      googleId: user.googleId ?? undefined,
-      appleId: user.appleId ?? undefined,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      profile: user.profile ? new ProfileEntity({
-        ...user.profile,
-        userId: user.profile.userId ?? undefined,
-        adminId: user.profile.adminId ?? undefined,
-        superAdminId: user.profile.superAdminId ?? undefined,
-        artistId: user.profile.artistId ?? undefined
-      }) : undefined
-    }));
+    return users.map(user => this.mapToUserEntity(user));
   }
 
   async create(userData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {

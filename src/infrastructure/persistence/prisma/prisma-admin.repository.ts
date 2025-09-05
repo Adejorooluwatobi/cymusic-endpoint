@@ -7,6 +7,26 @@ import { ProfileEntity } from '../../../domain/entities/profile.entity';
 export class PrismaAdminRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private mapAdminToUserEntity(admin: any): UserEntity {
+    return new UserEntity({
+      id: admin.id,
+      email: admin.email,
+      password: admin.password ?? undefined,
+      displayName: admin.displayName,
+      isActive: admin.isActive,
+      isVerified: admin.isVerified,
+      createdAt: admin.createdAt,
+      updatedAt: admin.updatedAt,
+      profile: admin.profile ? new ProfileEntity({
+        ...admin.profile,
+        userId: admin.profile.userId ?? undefined,
+        adminId: admin.profile.adminId ?? undefined,
+        superAdminId: admin.profile.superAdminId ?? undefined,
+        artistId: admin.profile.artistId ?? undefined
+      }) : undefined
+    });
+  }
+
   async findById(id: string): Promise<UserEntity | null> {
     const admin = await this.prisma.admin.findUnique({ 
       where: { id },
@@ -59,23 +79,7 @@ export class PrismaAdminRepository {
     const admin = await this.prisma.admin.findMany({
       include: { profile: true }
     });
-    return admin.map(user => new UserEntity({
-      id: user.id,
-      email: user.email,
-      password: user.password ?? undefined,
-      displayName: user.displayName,
-      isActive: user.isActive,
-      isVerified: user.isVerified,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      profile: user.profile ? new ProfileEntity({
-        ...user.profile,
-        userId: user.profile.userId ?? undefined,
-        adminId: user.profile.adminId ?? undefined,
-        superAdminId: user.profile.superAdminId ?? undefined,
-        artistId: user.profile.artistId ?? undefined
-      }) : undefined
-    }));
+    return admin.map(user => this.mapAdminToUserEntity(user));
   }
 
   async create(adminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {

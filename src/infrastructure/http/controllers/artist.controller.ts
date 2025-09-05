@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, Delete, Put, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ValidationPipe, Delete, Put, UseGuards, Request, NotFoundException } from '@nestjs/common';
 import { ArtistService } from '../../../domain/services/artist.service';
 import { CreateArtistDto } from '../../../application/dto/artist/create-artist.dto';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -38,7 +38,7 @@ export class ArtistController {
   async findOne(@Param('id') id: string) {
     const artist = await this.artistService.findOneArtist(id);
     if (!artist) {
-      throw new Error(`Artist with id ${id} not found`);
+      throw new NotFoundException(`Artist with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -52,7 +52,7 @@ export class ArtistController {
   async update(@Param('id') id: string, @Body() updateArtistDto: Partial<CreateArtistDto>) {
     const artist = await this.artistService.updateArtist(id, updateArtistDto);
     if (!artist) {
-      throw new Error(`Artist with id ${id} not found`);
+      throw new NotFoundException(`Artist with id ${id} not found`);
     }
     return {
       succeeded: true,
@@ -77,11 +77,11 @@ export class ArtistController {
   @ApiOperation({ summary: 'Get current artist info with profile' })
   async getMe(@Request() req: any) {
     if (!req.user.artist?.id) {
-      throw new Error('Artist not found in token');
+      throw new NotFoundException('Artist not found in token');
     }
     const artist = await this.artistService.findOneArtist(req.user.artist.id);
     if (!artist) {
-      throw new Error('Artist not found');
+      throw new NotFoundException('Artist not found');
     }
     return {
       succeeded: true,

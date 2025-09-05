@@ -7,6 +7,22 @@ import { ProfileEntity } from '../../../domain/entities/profile.entity';
 export class PrismaArtistRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private mapArtistToUserEntity(artist: any): UserEntity {
+    return new UserEntity({
+      ...artist,
+      password: artist.password ?? undefined,
+      googleId: artist.googleId ?? undefined,
+      appleId: artist.appleId ?? undefined,
+      profile: artist.profile ? new ProfileEntity({
+        ...artist.profile,
+        userId: artist.profile.userId ?? undefined,
+        adminId: artist.profile.adminId ?? undefined,
+        superAdminId: artist.profile.superAdminId ?? undefined,
+        artistId: artist.profile.artistId ?? undefined
+      }) : undefined
+    });
+  }
+
   async findById(id: string): Promise<UserEntity | null> {
     const artist = await this.prisma.artist.findUnique({ 
       where: { id },
@@ -48,28 +64,10 @@ export class PrismaArtistRepository {
   }
 
     async findAll(): Promise<UserEntity[]> {
-    const artist = await this.prisma.artist.findMany({
+    const artists = await this.prisma.artist.findMany({
       include: { profile: true }
     });
-    return artist.map(user => new UserEntity({
-      id: user.id,
-      email: user.email,
-      password: user.password ?? undefined,
-      displayName: user.displayName,
-      isActive: user.isActive,
-      isVerified: user.isVerified,
-      googleId: user.googleId ?? undefined,
-      appleId: user.appleId ?? undefined,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      profile: user.profile ? new ProfileEntity({
-        ...user.profile,
-        userId: user.profile.userId ?? undefined,
-        adminId: user.profile.adminId ?? undefined,
-        superAdminId: user.profile.superAdminId ?? undefined,
-        artistId: user.profile.artistId ?? undefined
-      }) : undefined
-    }));
+    return artists.map(artist => this.mapArtistToUserEntity(artist));
   }
 
   async create(artistData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
@@ -118,6 +116,9 @@ export class PrismaArtistRepository {
   }
 
   async delete(id: string): Promise<void> {
+    if (!id || typeof id !== 'string') {
+      throw new Error('Invalid artist ID');
+    }
     await this.prisma.artist.delete({ where: { id } });
   }
 }
