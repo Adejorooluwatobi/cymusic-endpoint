@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { UserEntity } from '../../../domain/entities/user.entity';
-import { ProfileEntity } from '../../../domain/entities/profile.entity';
+import { SuperAdminMapper } from '../../mappers/super-admin.mapper';
 
 @Injectable()
 export class PrismaSuperAdminRepository {
@@ -12,46 +12,14 @@ export class PrismaSuperAdminRepository {
       where: { id },
       include: { profile: true }
     });
-    return superAdmin ? new UserEntity({
-      id: superAdmin.id,
-      email: superAdmin.email,
-      password: superAdmin.password ?? undefined,
-      displayName: superAdmin.displayName,
-      isActive: superAdmin.isActive,
-      isVerified: superAdmin.isVerified,
-      createdAt: superAdmin.createdAt,
-      updatedAt: superAdmin.updatedAt,
-      profile: superAdmin.profile ? new ProfileEntity({
-        ...superAdmin.profile,
-        userId: superAdmin.profile.userId ?? undefined,
-        adminId: superAdmin.profile.adminId ?? undefined,
-        superAdminId: superAdmin.profile.superAdminId ?? undefined,
-        artistId: superAdmin.profile.artistId ?? undefined
-      }) : undefined
-    }) : null;
+    return superAdmin ? SuperAdminMapper.toDomain(superAdmin) : null;
   }
 
-    async findAll(): Promise<UserEntity[]> {
+  async findAll(): Promise<UserEntity[]> {
     const superAdmin = await this.prisma.superAdmin.findMany({
       include: { profile: true }
     });
-    return superAdmin.map(user => new UserEntity({
-      id: user.id,
-      email: user.email,
-      password: user.password ?? undefined,
-      displayName: user.displayName,
-      isActive: user.isActive,
-      isVerified: user.isVerified,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      profile: user.profile ? new ProfileEntity({
-        ...user.profile,
-        userId: user.profile.userId ?? undefined,
-        adminId: user.profile.adminId ?? undefined,
-        superAdminId: user.profile.superAdminId ?? undefined,
-        artistId: user.profile.artistId ?? undefined
-      }) : undefined
-    }));
+    return SuperAdminMapper.toDomainArray(superAdmin);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -59,63 +27,23 @@ export class PrismaSuperAdminRepository {
       where: { email },
       include: { profile: true }
     });
-    return superAdmin ? new UserEntity({
-      id: superAdmin.id,
-      email: superAdmin.email,
-      password: superAdmin.password ?? undefined,
-      displayName: superAdmin.displayName,
-      isActive: superAdmin.isActive,
-      isVerified: superAdmin.isVerified,
-      createdAt: superAdmin.createdAt,
-      updatedAt: superAdmin.updatedAt,
-      profile: superAdmin.profile ? new ProfileEntity({
-        ...superAdmin.profile,
-        userId: superAdmin.profile.userId ?? undefined,
-        adminId: superAdmin.profile.adminId ?? undefined,
-        superAdminId: superAdmin.profile.superAdminId ?? undefined,
-        artistId: superAdmin.profile.artistId ?? undefined
-      }) : undefined
-    }) : null;
+    return superAdmin ? SuperAdminMapper.toDomain(superAdmin) : null;
   }
   
 
   async create(superAdminData: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserEntity> {
-    const { email, password, displayName, isActive, isVerified } = superAdminData;
     const superAdmin = await this.prisma.superAdmin.create({ 
-      data: { email, password, displayName, isActive, isVerified }
+      data: SuperAdminMapper.toPersistence(superAdminData as UserEntity)
     });
-    return new UserEntity({
-      id: superAdmin.id,
-      email: superAdmin.email,
-      password: superAdmin.password ?? undefined,
-      displayName: superAdmin.displayName,
-      isActive: superAdmin.isActive,
-      isVerified: superAdmin.isVerified,
-      createdAt: superAdmin.createdAt,
-      updatedAt: superAdmin.updatedAt
-    });
+    return SuperAdminMapper.toDomain(superAdmin);
   }
 
   async update(id: string, superAdminData: Partial<UserEntity>): Promise<UserEntity> {
-    const { email, password, displayName, isActive, isVerified } = superAdminData;
-    const updateData: any = {};
-    if (email !== undefined) updateData.email = email;
-    if (password !== undefined) updateData.password = password;
-    if (displayName !== undefined) updateData.displayName = displayName;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    if (isVerified !== undefined) updateData.isVerified = isVerified;
-    
-    const superAdmin = await this.prisma.superAdmin.update({ where: { id }, data: updateData });
-    return new UserEntity({
-      id: superAdmin.id,
-      email: superAdmin.email,
-      password: superAdmin.password ?? undefined,
-      displayName: superAdmin.displayName,
-      isActive: superAdmin.isActive,
-      isVerified: superAdmin.isVerified,
-      createdAt: superAdmin.createdAt,
-      updatedAt: superAdmin.updatedAt
+    const superAdmin = await this.prisma.superAdmin.update({ 
+      where: { id }, 
+      data: SuperAdminMapper.toPersistence(superAdminData as UserEntity)
     });
+    return SuperAdminMapper.toDomain(superAdmin);
   }
 
   async delete(id: string): Promise<void> {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import {PlaylistEntity } from '../../../domain/entities/playlist.entity';
+import { PlaylistMapper } from '../../mappers/playlist.mapper';
 
 @Injectable()
 export class PrismaPlaylistRepository {
@@ -8,7 +9,7 @@ export class PrismaPlaylistRepository {
 
   async create(data: any): Promise<PlaylistEntity> {
     const playlist = await this.prisma.playlist.create({
-      data,
+      data: PlaylistMapper.toPersistence(data),
       select: {
         id: true,
         userId: true,
@@ -22,18 +23,7 @@ export class PrismaPlaylistRepository {
         playlistMusic: { select: { musicId: true, music: true } },
       },
     });
-    return {
-      id: playlist.id,
-      userId: playlist.userId || undefined,
-      adminId: playlist.adminId || undefined,
-      superAdminId: playlist.superAdminId || undefined,
-      artistId: playlist.artistId || undefined,
-      name: playlist.name,
-      description: playlist.description ?? null,
-      createdAt: playlist.createdAt,
-      updatedAt: playlist.updatedAt,
-      playlistMusic: playlist.playlistMusic,
-    };
+    return PlaylistMapper.toDomain(playlist);
   }
 
   async findById(id: string): Promise<PlaylistEntity | null> {
@@ -52,18 +42,7 @@ export class PrismaPlaylistRepository {
         playlistMusic: { select: { musicId: true, music: true } },
       },
     });
-    return playlist ? {
-      id: playlist.id,
-      userId: playlist.userId || undefined,
-      adminId: playlist.adminId || undefined,
-      superAdminId: playlist.superAdminId || undefined,
-      artistId: playlist.artistId || undefined,
-      name: playlist.name,
-      description: playlist.description ?? null,
-      createdAt: playlist.createdAt,
-      updatedAt: playlist.updatedAt,
-      playlistMusic: playlist.playlistMusic,
-    } : null;
+    return playlist ? PlaylistMapper.toDomain(playlist) : null;
   }
 
   async findByUser(userId: string): Promise<PlaylistEntity[]> {
@@ -83,18 +62,7 @@ export class PrismaPlaylistRepository {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return playlists.map(playlist => ({
-      id: playlist.id,
-      userId: playlist.userId || undefined,
-      adminId: playlist.adminId || undefined,
-      superAdminId: playlist.superAdminId || undefined,
-      artistId: playlist.artistId || undefined,
-      name: playlist.name,
-      description: playlist.description ?? null,
-      createdAt: playlist.createdAt,
-      updatedAt: playlist.updatedAt,
-      playlistMusic: playlist.playlistMusic,
-    }));
+    return PlaylistMapper.toDomainArray(playlists);
   }
 
   async findAll(): Promise<PlaylistEntity[]> {
@@ -113,18 +81,7 @@ export class PrismaPlaylistRepository {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return playlists.map(playlist => ({
-      id: playlist.id,
-      userId: playlist.userId || undefined,
-      adminId: playlist.adminId || undefined,
-      superAdminId: playlist.superAdminId || undefined,
-      artistId: playlist.artistId || undefined,
-      name: playlist.name,
-      description: playlist.description ?? null,
-      createdAt: playlist.createdAt,
-      updatedAt: playlist.updatedAt,
-      playlistMusic: playlist.playlistMusic,
-    }));
+    return PlaylistMapper.toDomainArray(playlists);
   }
 
   async addMusic(playlistId: string, musicId: string): Promise<void> {

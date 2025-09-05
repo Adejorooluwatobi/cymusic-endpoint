@@ -2,28 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { Album } from '../../../domain/entities/album.entity';
 import { CreateAlbumDto } from '../../../application/dto/album/create-album.dto';
+import { AlbumMapper } from '../../mappers/album.mapper';
 
 @Injectable()
 export class PrismaAlbumRepository {
   constructor(private prisma: PrismaService) {}
 
-  private transformAlbum(album: any): Album {
-    return {
-      ...album,
-      coverImageUrl: album.coverImageUrl || undefined,
-    };
-  }
+
 
   async create(data: CreateAlbumDto & { artistId: string; releaseDate: Date }): Promise<Album> {
     const album = await this.prisma.album.create({
-      data,
+      data: AlbumMapper.toPersistence(data),
       include: {
         albumMusic: {
           include: { music: true },
         },
       },
     });
-    return this.transformAlbum(album);
+    return AlbumMapper.toDomain(album);
   }
 
   async findById(id: string): Promise<Album | null> {
@@ -35,7 +31,7 @@ export class PrismaAlbumRepository {
         },
       },
     });
-    return album ? this.transformAlbum(album) : null;
+    return album ? AlbumMapper.toDomain(album) : null;
   }
 
   async findByArtist(artistId: string): Promise<Album[]> {
@@ -48,7 +44,7 @@ export class PrismaAlbumRepository {
       },
       orderBy: { releaseDate: 'desc' },
     });
-    return albums.map(album => this.transformAlbum(album));
+    return AlbumMapper.toDomainArray(albums);
   }
 
   async findAll(): Promise<Album[]> {
@@ -60,7 +56,7 @@ export class PrismaAlbumRepository {
       },
       orderBy: { releaseDate: 'desc' },
     });
-    return albums.map(album => this.transformAlbum(album));
+    return AlbumMapper.toDomainArray(albums);
   }
 
   async addMusic(albumId: string, musicId: string): Promise<void> {
