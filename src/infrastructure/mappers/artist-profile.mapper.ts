@@ -12,11 +12,7 @@ export class ArtistProfileMapper {
       profileImageUrl: prismaArtistProfile.profileImageUrl ?? undefined,
       isVerified: prismaArtistProfile.isVerified,
       createdAt: prismaArtistProfile.createdAt,
-      updatedAt: prismaArtistProfile.updatedAt,
-      artist: prismaArtistProfile.artist ? {
-        ...prismaArtistProfile.artist,
-        password: prismaArtistProfile.artist.password ?? undefined,
-      } : undefined
+      updatedAt: prismaArtistProfile.updatedAt
     };
   }
 
@@ -25,7 +21,6 @@ export class ArtistProfileMapper {
   }
 
   static toPersistence(artistProfile: Partial<ArtistProfile>): any {
-    const { artist, ...data } = artistProfile as any;
-    return data;
+    return artistProfile;
   }
 }

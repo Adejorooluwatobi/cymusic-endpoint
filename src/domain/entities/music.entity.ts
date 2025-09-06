@@ -7,8 +7,15 @@ export class MusicEntity {
   uploadDate: Date;
   createdAt: Date;
   updatedAt: Date;
-  genre?: string;
+  genreId?: string;
   duration?: number;
+  quality: 'low' | 'medium' | 'high' | 'lossless';
+  fileSize: number;
+  isExplicit: boolean;
+  isPremium: boolean;
+  playCount: number;
+  likeCount: number;
+  shareCount: number;
 
   constructor(data: Partial<MusicEntity>) {
     Object.assign(this, data);

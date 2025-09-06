@@ -21,7 +21,7 @@ export class PlaylistMapper {
   }
 
   static toPersistence(playlistEntity: Partial<PlaylistEntity>): any {
-    const { playlistMusic, ...data } = playlistEntity;
+    const { playlistMusic: _playlistMusic, ...data } = playlistEntity;
     return data;
   }
 }

@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
 import { CreateMusicParams, UpdateMusicParams } from 'src/utils/types';
+import type { IMusicRepository } from '../repositories/music.repository.interface';
+import { MusicEntity } from '../entities/music.entity';
 
 @Injectable()
 export class MusicService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject('IMusicRepository') private musicRepository: IMusicRepository
+  ) {}
 
   async create(musicDetails: CreateMusicParams) {
     return this.prisma.music.create({
@@ -82,5 +87,29 @@ export class MusicService {
     return this.prisma.playlistMusic.deleteMany({
       where: { musicId, playlistId },
     });
+  }
+
+  async incrementPlayCount(musicId: string): Promise<void> {
+    await this.musicRepository.incrementPlayCount(musicId);
+  }
+
+  async likeMusic(musicId: string): Promise<void> {
+    await this.musicRepository.incrementLikeCount(musicId);
+  }
+
+  async shareMusic(musicId: string): Promise<void> {
+    await this.musicRepository.incrementShareCount(musicId);
+  }
+
+  async getPopularMusic(limit: number = 20): Promise<MusicEntity[]> {
+    return this.musicRepository.findPopular(limit);
+  }
+
+  async searchMusic(query: string): Promise<MusicEntity[]> {
+    return this.musicRepository.search(query);
+  }
+
+  async getMusicByGenre(genreId: string): Promise<MusicEntity[]> {
+    return this.musicRepository.findByGenre(genreId);
   }
 }

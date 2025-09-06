@@ -120,8 +120,15 @@ export type CreateMusicParams = {
     audioFileUrl: string;
     coverImageUrl?: string;
     uploadDate: Date;
-    genre?: string;
+    genreId?: string;
     duration?: number;
+    quality: 'low' | 'medium' | 'high' | 'lossless';
+    fileSize: number;
+    isExplicit?: boolean;
+    isPremium?: boolean;
+    playCount: number;
+    likeCount: number;
+    shareCount: number;
 }
 
 export type UpdateMusicParams = {
@@ -130,8 +137,12 @@ export type UpdateMusicParams = {
     audioFileUrl?: string;
     coverImageUrl?: string;
     uploadDate?: Date;
-    genre?: string;
+    genreId?: string;
     duration?: number;
+    quality?: 'low' | 'medium' | 'high' | 'lossless';
+    fileSize?: number;
+    isExplicit?: boolean;
+    isPremium?: boolean;
 }
 
 export type CreateArtistProfileParams = {

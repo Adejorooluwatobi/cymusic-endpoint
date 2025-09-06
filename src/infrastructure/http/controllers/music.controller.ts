@@ -1,29 +1,80 @@
-import { Controller, Post, Get, Delete, Put, Body, Param, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Put, Body, Param, UseGuards, Request, NotFoundException, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ArtistGuard } from '../auth/guards/artist.guard';
 import { MusicService } from '../../../domain/services/music.service';
 import { CreateMusicDto } from '../../../application/dto/music/create-music.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { UpdateMusicDto } from 'src/application/dto/music/update-music.dto';
 import { CreateMusicParams } from 'src/utils/types';
+import { FileUploadService } from '../../../shared/services/file-upload.service';
+import { Multer } from 'multer';
 
 @ApiTags('Music')
 @Controller('music')
 export class MusicController {
-  constructor(private musicService: MusicService) {}
+  constructor(
+    private musicService: MusicService,
+    private fileUploadService: FileUploadService
+  ) {}
 
-@Post()
+@Post('upload')
   @UseGuards(JwtAuthGuard, ArtistGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create music (Artists only)' })
+  @ApiOperation({ summary: 'Upload music with files (Artists only)' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'audio', maxCount: 1 },
+    { name: 'cover', maxCount: 1 }
+  ]))
+  async uploadMusic(
+    @Request() req,
+    @Body() createMusicDto: CreateMusicDto,
+    @UploadedFiles() files: { audio?: Multer.File[], cover?: Multer.File[] }
+  ) {
+    const artistId = this.extractUserId(req.user).id;
+    
+    let audioFileUrl = createMusicDto.audioFileUrl;
+    let coverImageUrl = createMusicDto.coverImageUrl;
+    
+    if (files.audio?.[0]) {
+      audioFileUrl = await this.fileUploadService.uploadAudioFile(files.audio[0]);
+    }
+    
+    if (files.cover?.[0]) {
+      coverImageUrl = await this.fileUploadService.uploadImageFile(files.cover[0]);
+    }
+    
+    const musicParams: CreateMusicParams = {
+      ...createMusicDto,
+      artistId,
+      audioFileUrl,
+      coverImageUrl,
+      uploadDate: new Date(),
+      playCount: 0,
+      likeCount: 0,
+      shareCount: 0
+    };
+    
+    const music = await this.musicService.create(musicParams);
+    return { succeeded: true, message: 'Music uploaded successfully', resultData: music };
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard, ArtistGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create music with URLs (Artists only)' })
   async create(@Request() req, @Body() createMusicDto: CreateMusicDto) {
     const artistId = this.extractUserId(req.user).id;
-    const musicParams: CreateMusicParams = { // Create the complete object
+    const musicParams: CreateMusicParams = {
       ...createMusicDto,
       artistId,
       uploadDate: new Date(),
+      playCount: 0,
+      likeCount: 0,
+      shareCount: 0
     };
-    const music = await this.musicService.create(musicParams); // Pass the single object
+    const music = await this.musicService.create(musicParams);
     return { succeeded: true, message: 'Music created successfully', resultData: music };
   }
 
@@ -89,6 +140,36 @@ export class MusicController {
     const userInfo = this.extractUserId(req.user);
     await this.musicService.removeFromPlaylist(musicId, playlistId, userInfo.id);
     return { succeeded: true, message: 'Music removed from playlist successfully' };
+  }
+
+  @Post(':id/play')
+  @ApiOperation({ summary: 'Track music play (Public)' })
+  async trackPlay(@Param('id') musicId: string) {
+    await this.musicService.incrementPlayCount(musicId);
+    return { succeeded: true, message: 'Play tracked successfully' };
+  }
+
+  @Post(':id/like')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Like music' })
+  async likeMusic(@Param('id') musicId: string) {
+    await this.musicService.likeMusic(musicId);
+    return { succeeded: true, message: 'Music liked successfully' };
+  }
+
+  @Post(':id/share')
+  @ApiOperation({ summary: 'Track music share (Public)' })
+  async shareMusic(@Param('id') musicId: string) {
+    await this.musicService.shareMusic(musicId);
+    return { succeeded: true, message: 'Share tracked successfully' };
+  }
+
+  @Get('popular')
+  @ApiOperation({ summary: 'Get popular music (Public)' })
+  async getPopularMusic() {
+    const music = await this.musicService.getPopularMusic();
+    return { succeeded: true, message: 'Popular music retrieved', resultData: music };
   }
 
   private extractUserId(user: any): { id: string; type: string } {

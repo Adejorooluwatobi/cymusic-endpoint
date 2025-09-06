@@ -1,16 +1,20 @@
-import { IsString, IsOptional, IsDate, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsDate, IsNumber, IsBoolean, IsIn, IsUUID, IsNotEmpty, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMusicDto {
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
   @ApiProperty({ description: 'Music title' })
   title: string;
 
-  @IsString()
-  @ApiProperty()
-  artistId: string
+  @IsUUID()
+  @IsNotEmpty()
+  @ApiProperty({ description: 'Artist ID' })
+  artistId: string;
 
   @IsString()
+  @IsNotEmpty()
   @ApiProperty({ description: 'Audio file URL' })
   audioFileUrl: string;
 
@@ -20,16 +24,34 @@ export class CreateMusicDto {
   coverImageUrl?: string;
 
   @IsDate()
-  @ApiProperty()
+  @ApiProperty({ description: 'Upload date' })
   uploadDate: Date;
 
   @IsOptional()
-  @IsString()
-  @ApiProperty({ description: 'Music genre', required: false })
-  genre?: string;
+  @IsUUID()
+  @ApiProperty({ description: 'Genre ID', required: false })
+  genreId?: string;
 
   @IsOptional()
   @IsNumber()
-  @ApiProperty({ description: 'Music duration', required: false })
+  @ApiProperty({ description: 'Music duration in seconds', required: false })
   duration?: number;
+
+  @IsIn(['low', 'medium', 'high', 'lossless'])
+  @ApiProperty({ description: 'Audio quality', enum: ['low', 'medium', 'high', 'lossless'] })
+  quality: 'low' | 'medium' | 'high' | 'lossless';
+
+  @IsNumber()
+  @ApiProperty({ description: 'File size in bytes' })
+  fileSize: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ description: 'Is explicit content', required: false, default: false })
+  isExplicit?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ description: 'Is premium content', required: false, default: false })
+  isPremium?: boolean;
 }

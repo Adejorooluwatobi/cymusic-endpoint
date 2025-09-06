@@ -57,9 +57,19 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
-    if (!email || typeof email !== 'string') {
+    if (!email || typeof email !== 'string' || !this.isValidEmail(email)) {
       throw new Error('Valid email is required');
     }
-    return this.userRepository.findByEmail(email);
+    const sanitizedEmail = email.trim().toLowerCase();
+    return this.userRepository.findByEmail(sanitizedEmail);
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  private sanitizeInput(input: string): string {
+    return input.replace(/[\r\n\t]/g, '').trim();
   }
 }

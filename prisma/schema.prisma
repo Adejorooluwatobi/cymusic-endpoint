@@ -103,13 +103,21 @@ model Music {
   artistId      String
   audioFileUrl  String
   coverImageUrl String?
-  genre         String?
+  genreId       String?
   duration      String?
+  quality       String   @default("medium")
+  fileSize      Int      @default(0)
+  isExplicit    Boolean  @default(false)
+  isPremium     Boolean  @default(false)
+  playCount     Int      @default(0)
+  likeCount     Int      @default(0)
+  shareCount    Int      @default(0)
   uploadDate    DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
   artist        Artist         @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  genre         Genre?         @relation(fields: [genreId], references: [id], onDelete: SetNull)
   albumMusic    AlbumMusic[]
   playlistMusic PlaylistMusic[]
 }
@@ -182,4 +190,22 @@ model ArtistProfile {
 
   artist          Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
   user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Genre {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  music       Music[]
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
 }

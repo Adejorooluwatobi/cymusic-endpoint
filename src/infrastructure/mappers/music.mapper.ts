@@ -11,7 +11,7 @@ export class MusicMapper {
       uploadDate: prismaMusic.uploadDate,
       createdAt: prismaMusic.createdAt,
       updatedAt: prismaMusic.updatedAt,
-      genre: prismaMusic.genre || undefined,
+      genreId: prismaMusic.genreId || undefined,
       duration: prismaMusic.duration ? Number(prismaMusic.duration) : undefined
     });
   }
