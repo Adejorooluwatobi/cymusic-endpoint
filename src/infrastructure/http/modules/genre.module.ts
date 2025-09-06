@@ -3,9 +3,10 @@ import { GenreController } from '../controllers/genre.controller';
 import { GenreService } from '../../../domain/services/genre.service';
 import { PrismaModule } from '../../persistence/prisma/prisma.module';
 import { PrismaGenreRepository } from '../../persistence/prisma/prisma-genre.repository';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [GenreController],
   providers: [
     GenreService,
