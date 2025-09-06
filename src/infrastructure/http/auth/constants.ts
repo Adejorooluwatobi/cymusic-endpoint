@@ -1,2 +1,2 @@
-export const JWT_SECRET = 'your-secret-key'; // Replace with a secure key
-export const TOKEN_EXPIRATION = '1h'; // Token expiration time
+export const JWT_SECRET = process.env.JWT_SECRET || 'fallback-development-secret-change-in-production';
+export const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '24h';

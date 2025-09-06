@@ -63,3 +63,105 @@ export type UpdateAdminParams = {
     displayName?: string;
     isActive?: boolean;
 }
+
+export type CreateProfileParams = {
+    phoneNumber?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    dateOfBirth: string;
+    userId?: string;
+}
+
+export type UpdateProfileParams = {
+    phoneNumber?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    dateOfBirth?: string;
+    userId?: string;
+}
+
+export type CreateAlbumParams = {
+    userId?: string;
+    title: string;
+    music?: string[]; // Array of music IDs
+    description?: string;
+}
+
+export type UpdateAlbumParams = {
+    userId?: string;
+    title?: string;
+    music?: string[]; // Array of music IDs
+    description?: string;
+}
+
+export type CreatePlaylistParams = {
+    userId: string;
+    name: string;
+    description?: string;
+    music?: string[]; // Array of music IDs
+}
+
+export type UpdatePlaylistParams = {
+    userId?: string;
+    name?: string;
+    description?: string;
+    music?: string[]; // Array of music IDs
+}
+
+export type CreateMusicParams = {
+    title: string;
+    artistId: string;
+    audioFileUrl: string;
+    coverImageUrl?: string;
+    uploadDate: Date;
+    genreId?: string;
+    duration?: number;
+    quality: 'low' | 'medium' | 'high' | 'lossless';
+    fileSize: number;
+    isExplicit?: boolean;
+    isPremium?: boolean;
+    playCount: number;
+    likeCount: number;
+    shareCount: number;
+}
+
+export type UpdateMusicParams = {
+    title?: string;
+    artistId?: string;
+    audioFileUrl?: string;
+    coverImageUrl?: string;
+    uploadDate?: Date;
+    genreId?: string;
+    duration?: number;
+    quality?: 'low' | 'medium' | 'high' | 'lossless';
+    fileSize?: number;
+    isExplicit?: boolean;
+    isPremium?: boolean;
+}
+
+export type CreateArtistProfileParams = {
+    artistId: string;
+    royaltyRate?: number;
+    activeFollowers: number;
+    country?: string | null;
+    bio?: string | null;
+    profileImageUrl?: string | null;
+    isVerified: boolean;
+}
+
+export type UpdateArtistProfileParams = {
+    artistId?: string;
+    royaltyRate?: number;
+    activeFollowers?: number;
+    country?: string | null;
+    bio?: string | null;
+    profileImageUrl?: string | null;
+    isVerified?: boolean;
+}
+

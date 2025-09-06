@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,12 +15,16 @@ model User {
   email       String   @unique
   password    String?
   displayName String
-  isVerified  Boolean  @default(false)
   isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false)
   googleId    String?
   appleId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  profile   Profile?
+  playlists Playlist[]
+  artistProfiles ArtistProfile[]
 }
 
 model Admin {
@@ -29,6 +36,9 @@ model Admin {
   isVerified  Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  profile   Profile?
+  playlists Playlist[]
 }
 
 model SuperAdmin {
@@ -40,6 +50,9 @@ model SuperAdmin {
   isVerified  Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  profile   Profile?
+  playlists Playlist[]
 }
 
 model Artist {
@@ -53,4 +66,146 @@ model Artist {
   appleId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  profile   Profile?
+  music     Music[]
+  albums    Album[]
+  playlists Playlist[]
+  artistProfiles ArtistProfile[]
+}
+
+model Profile {
+  id           String   @id @default(cuid())
+  phoneNumber  String
+  address      String
+  city         String
+  state        String
+  country      String
+  postalCode   String
+  dateOfBirth  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  userId       String?  @unique
+  adminId      String?  @unique
+  superAdminId String?  @unique
+  artistId     String?  @unique
+  
+  user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin      Admin?      @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  superAdmin SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+  artist     Artist?     @relation(fields: [artistId], references: [id], onDelete: Cascade)
+}
+
+model Music {
+  id            String   @id @default(cuid())
+  title         String
+  artistId      String
+  audioFileUrl  String
+  coverImageUrl String?
+  genreId       String?
+  duration      String?
+  quality       String   @default("medium")
+  fileSize      Int      @default(0)
+  isExplicit    Boolean  @default(false)
+  isPremium     Boolean  @default(false)
+  playCount     Int      @default(0)
+  likeCount     Int      @default(0)
+  shareCount    Int      @default(0)
+  uploadDate    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  artist        Artist         @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  genre         Genre?         @relation(fields: [genreId], references: [id], onDelete: SetNull)
+  albumMusic    AlbumMusic[]
+  playlistMusic PlaylistMusic[]
+}
+
+model Album {
+  id            String   @id @default(cuid())
+  title         String
+  artistId      String
+  coverImageUrl String?
+  description   String?
+  releaseDate   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  artist     Artist       @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  albumMusic AlbumMusic[]
+}
+
+model AlbumMusic {
+  albumId String
+  musicId String
+  
+  album Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  music Music @relation(fields: [musicId], references: [id], onDelete: Cascade)
+  
+  @@id([albumId, musicId])
+}
+
+
+
+model Playlist {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String?
+  admin       Admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId     String?
+  superAdmin  SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+  superAdminId String?
+  artist      Artist?  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId    String?
+  playlistMusic PlaylistMusic[]
+}
+
+model PlaylistMusic {
+  id        String   @id @default(cuid())
+  playlist  Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  playlistId String
+  music     Music    @relation(fields: [musicId], references: [id], onDelete: Cascade)
+  musicId   String
+  @@unique([playlistId, musicId])
+}
+
+
+model ArtistProfile {
+  id              String   @id @default(cuid())
+  userId          String?
+  artistId        String
+  royaltyRate     Float
+  activeFollowers Int
+  country         String?
+  bio             String?
+  profileImageUrl String?
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  artist          Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Genre {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  music       Music[]
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
 }

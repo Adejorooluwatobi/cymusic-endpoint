@@ -1,34 +1,35 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateAdminDto } from 'src/application/dto/admin/create-admin.dto';
 import { PrismaAdminRepository } from 'src/infrastructure/persistence/prisma/prisma-admin.repository';
 import { UserEntity } from '../entities/user.entity';
+import { CreateAdminParams } from 'src/utils/types';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly adminRepository: PrismaAdminRepository) {}
 
-  async createAdmin(createAdminDto: CreateAdminDto): Promise<UserEntity> {
-    if (!createAdminDto.email || !createAdminDto.password) {
+  async createAdmin(adminDetails: CreateAdminParams): Promise<UserEntity> {
+    if (!adminDetails.email || !adminDetails.password) {
       throw new Error('Email and password are required');
     }
-    const existingAdmin = await this.adminRepository.findByEmail(createAdminDto.email);
+    const existingAdmin = await this.adminRepository.findByEmail(adminDetails.email);
     if (existingAdmin) {
-      throw new ConflictException(`Admin with email ${createAdminDto.email} already exists`);
+      throw new ConflictException(`Admin with email ${adminDetails.email} already exists`);
     }
-    const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
+    const hashedPassword = await bcrypt.hash(adminDetails.password, 10);
     const newAdmin = await this.adminRepository.create({
-      ...createAdminDto,
+      ...adminDetails,
       password: hashedPassword,
       isVerified: true,
-      isActive: true
+      isActive: true,
     });
-    console.log(`Admin created successfully: ${newAdmin.email}`);
+    console.log('Admin created successfully:', newAdmin.id);
     return newAdmin;
   }
 
   async findAllAdmin(): Promise<UserEntity[]> {
-    return [];
+    const admins = await this.adminRepository.findAll();
+    return admins;
   }
 
   async findOneAdmin(id: string): Promise<UserEntity | null> {
@@ -41,7 +42,7 @@ export class AdminService {
       updateAdminDetails.password = await bcrypt.hash(updateAdminDetails.password, 10);
     }
     const updatedAdmin = await this.adminRepository.update(id, updateAdminDetails);
-    console.log(`Admin updated successfully: ${updatedAdmin.email}`);
+    console.log('Admin updated successfully:', updatedAdmin.id);
     return updatedAdmin;
   }
 
@@ -51,7 +52,7 @@ export class AdminService {
       throw new Error(`Admin with id ${id} not found`);
     }
     await this.adminRepository.delete(id);
-    console.log(`Admin deleted successfully: ${admin.email}`);
+    console.log('Admin deleted successfully:', admin.id);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
