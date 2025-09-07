@@ -46,7 +46,7 @@ export class MusicController {
     }
     
     if (!audioFileUrl) {
-      throw new Error('Audio file is required');
+      throw new NotFoundException('Audio file is required');
     }
     
     const musicParams: CreateMusicParams = {
@@ -72,7 +72,7 @@ export class MusicController {
     const artistId = this.extractUserId(req.user).id;
     
     if (!createMusicDto.audioFileUrl) {
-      throw new Error('Audio file URL is required');
+      throw new NotFoundException('Audio file URL is required');
     }
     
     const musicParams: CreateMusicParams = {

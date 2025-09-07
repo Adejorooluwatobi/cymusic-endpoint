@@ -13,7 +13,7 @@ export class MusicService {
 
   async create(musicDetails: CreateMusicParams) {
     if (!musicDetails.audioFileUrl) {
-      throw new Error('Audio file URL is required');
+      throw new NotFoundException('Audio file URL is required');
     }
     
     return this.prisma.music.create({

@@ -1,4 +1,5 @@
 import { IsString, IsOptional, IsDate, IsNumber, IsBoolean, IsIn, IsUUID, IsNotEmpty, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMusicDto {
@@ -25,6 +26,7 @@ export class CreateMusicDto {
 
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => value ? Number(value) : undefined)
   @ApiProperty({ description: 'Music duration in seconds', required: false })
   duration?: number;
 
@@ -33,18 +35,21 @@ export class CreateMusicDto {
   @ApiProperty({ description: 'Audio quality', enum: ['low', 'medium', 'high', 'lossless'] })
   quality?: 'low' | 'medium' | 'high' | 'lossless';
 
-  @IsNumber()
   @IsOptional()
-  @ApiProperty({ description: 'File size in bytes' })
-  fileSize: number;
+  @IsNumber()
+  @Transform(({ value }) => value ? Number(value) : undefined)
+  @ApiProperty({ description: 'File size in bytes', required: false })
+  fileSize?: number;
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
   @ApiProperty({ description: 'Is explicit content', required: false, default: false })
   isExplicit?: boolean;
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
   @ApiProperty({ description: 'Is premium content', required: false, default: false })
   isPremium?: boolean;
 }
