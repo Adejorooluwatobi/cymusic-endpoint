@@ -47,8 +47,21 @@ export class AuthService {
   async loginUser(email: string, password: string): Promise<AuthResponse> {
     try {
       const user = await this.userService.findByEmail(email);
-      if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
-        throw new NotFoundException('Invalid email or password');
+      this.logger.log(`User found: ${!!user}, Has password: ${!!user?.password}`);
+      
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      
+      if (!user.password) {
+        throw new NotFoundException('User has no password set');
+      }
+      
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      this.logger.log(`Password match: ${passwordMatch}`);
+      
+      if (!passwordMatch) {
+        throw new NotFoundException('Invalid password');
       }
 
       const payload = { sub: user.id, email: user.email, role: 'user' };
@@ -76,8 +89,21 @@ export class AuthService {
   async loginAdmin(_email: string, _password: string): Promise<AuthResponse> {
     try {
       const admin = await this.adminService.findByEmail(_email);
-      if (!admin || !admin.password || !(await bcrypt.compare(_password, admin.password))) {
-        throw new NotFoundException('Invalid email or password');
+      this.logger.log(`Admin found: ${!!admin}, Has password: ${!!admin?.password}`);
+      
+      if (!admin) {
+        throw new NotFoundException('Admin not found');
+      }
+      
+      if (!admin.password) {
+        throw new NotFoundException('Admin has no password set');
+      }
+      
+      const passwordMatch = await bcrypt.compare(_password, admin.password);
+      this.logger.log(`Password match: ${passwordMatch}`);
+      
+      if (!passwordMatch) {
+        throw new NotFoundException('Invalid password');
       }
       const payload = { sub: admin.id, email: admin.email, role: 'admin' };
       const accessToken = this.jwtService.sign(payload);
@@ -100,8 +126,21 @@ export class AuthService {
   async loginSuperAdmin(_email: string, _password: string): Promise<AuthResponse> {
     try {
       const superAdmin = await this.superAdminService.findByEmail(_email);
-      if (!superAdmin || !superAdmin.password || !(await bcrypt.compare(_password, superAdmin.password))) {
-        throw new NotFoundException('Invalid email or password');
+      this.logger.log(`Super Admin found: ${!!superAdmin}, Has password: ${!!superAdmin?.password}`);
+      
+      if (!superAdmin) {
+        throw new NotFoundException('Super Admin not found');
+      }
+      
+      if (!superAdmin.password) {
+        throw new NotFoundException('Super Admin has no password set');
+      }
+      
+      const passwordMatch = await bcrypt.compare(_password, superAdmin.password);
+      this.logger.log(`Password match: ${passwordMatch}`);
+      
+      if (!passwordMatch) {
+        throw new NotFoundException('Invalid password');
       }
       const payload = { sub: superAdmin.id, email: superAdmin.email, role: 'super_admin' };
       const accessToken = this.jwtService.sign(payload);
@@ -124,8 +163,21 @@ export class AuthService {
   async loginArtist(_email: string, _password: string): Promise<AuthResponse> {
     try {
       const artist = await this.artistService.findByEmail(_email);
-      if (!artist || !artist.password || !(await bcrypt.compare(_password, artist.password))) {
-        throw new NotFoundException('Invalid email or password');
+      this.logger.log(`Artist found: ${!!artist}, Has password: ${!!artist?.password}`);
+      
+      if (!artist) {
+        throw new NotFoundException('Artist not found');
+      }
+      
+      if (!artist.password) {
+        throw new NotFoundException('Artist has no password set');
+      }
+      
+      const passwordMatch = await bcrypt.compare(_password, artist.password);
+      this.logger.log(`Password match: ${passwordMatch}`);
+      
+      if (!passwordMatch) {
+        throw new NotFoundException('Invalid password');
       }
       const payload = { sub: artist.id, email: artist.email, role: 'artist' };
       const accessToken = this.jwtService.sign(payload);

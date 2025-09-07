@@ -3,11 +3,10 @@ import { PrismaModule } from 'src/infrastructure/persistence/prisma/prisma.modul
 import { ArtistProfileController } from '../controllers/artist-profile.controller';
 import { ArtistProfileService } from 'src/domain/services/artist-profile.service';
 import { PrismaArtistProfileRepository } from 'src/infrastructure/persistence/prisma/prisma-artist-profile.repository';
-import { IArtistProfileRepository } from 'src/domain/repositories/artist-profile.repository.interface';
-import { AuthModule } from '../auth/auth.module';
+// import { IArtistProfileRepository } from 'src/domain/repositories/artist-profile.repository.interface';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule],
   controllers: [ArtistProfileController],
   providers: [
     ArtistProfileService,

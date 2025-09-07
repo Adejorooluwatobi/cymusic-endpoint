@@ -1,6 +1,7 @@
 import { Album } from './album.entity';
 import { PlaylistEntity } from './playlist.entity';
 import { ProfileEntity } from './profile.entity';
+import { ArtistProfile } from './artist-profile.entity';
 export class UserEntity {
   id: string;
   email: string;
@@ -15,6 +16,7 @@ export class UserEntity {
   profile?: ProfileEntity;
   playlists?: PlaylistEntity[];
   album?: Album;
+  artistProfiles?: ArtistProfile[];
 
   constructor(data: Partial<UserEntity>) {
     Object.assign(this, data);

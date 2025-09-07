@@ -1,5 +1,6 @@
 import { UserEntity } from '../../domain/entities/user.entity';
 import { ProfileEntity } from '../../domain/entities/profile.entity';
+import { ArtistProfile } from '../../domain/entities/artist-profile.entity';
 
 export class ArtistMapper {
   static toDomain(prismaArtist: any): UserEntity {
@@ -14,7 +15,8 @@ export class ArtistMapper {
       appleId: prismaArtist.appleId ?? undefined,
       createdAt: prismaArtist.createdAt,
       updatedAt: prismaArtist.updatedAt,
-      profile: prismaArtist.profile ? this.mapProfile(prismaArtist.profile) : undefined
+      profile: prismaArtist.profile ? this.mapProfile(prismaArtist.profile) : undefined,
+      artistProfiles: prismaArtist.artistProfiles ? prismaArtist.artistProfiles.map(this.mapArtistProfile) : undefined
     });
   }
 
@@ -39,6 +41,21 @@ export class ArtistMapper {
       superAdminId: prismaProfile.superAdminId ?? undefined,
       artistId: prismaProfile.artistId ?? undefined
     });
+  }
+
+  private static mapArtistProfile(prismaArtistProfile: any): ArtistProfile {
+    return {
+      id: prismaArtistProfile.id,
+      artistId: prismaArtistProfile.artistId ?? undefined,
+      royaltyRate: prismaArtistProfile.royaltyRate ?? undefined,
+      activeFollowers: prismaArtistProfile.activeFollowers ?? undefined,
+      country: prismaArtistProfile.country ?? undefined,
+      bio: prismaArtistProfile.bio ?? undefined,
+      profileImageUrl: prismaArtistProfile.profileImageUrl ?? undefined,
+      isVerified: prismaArtistProfile.isVerified ?? undefined,
+      createdAt: prismaArtistProfile.createdAt,
+      updatedAt: prismaArtistProfile.updatedAt
+    };
   }
 
   static toPersistence(userEntity: UserEntity): any {

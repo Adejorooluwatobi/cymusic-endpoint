@@ -60,7 +60,7 @@ export class UserService {
     if (!email || typeof email !== 'string' || !this.isValidEmail(email)) {
       throw new BadRequestException('Valid email is required');
     }
-    const sanitizedEmail = email.trim().toLowerCase();
+    const sanitizedEmail = email.trim();
     return this.userRepository.findByEmail(sanitizedEmail);
   }
 
