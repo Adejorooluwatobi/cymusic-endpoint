@@ -7,3 +7,4 @@ export * from './artist-profile.mapper';
 export * from './music.mapper';
 export * from './playlist.mapper';
 export * from './album.mapper';
+export * from './profile.mapper';
