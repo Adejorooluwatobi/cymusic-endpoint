@@ -146,13 +146,13 @@ export type UpdateMusicParams = {
 }
 
 export type CreateArtistProfileParams = {
-    artistId: string;
+    artistId?: string;
     royaltyRate?: number;
     activeFollowers: number;
     country?: string | null;
     bio?: string | null;
     profileImageUrl?: string | null;
-    isVerified: boolean;
+    isVerified?: boolean;
 }
 
 export type UpdateArtistProfileParams = {

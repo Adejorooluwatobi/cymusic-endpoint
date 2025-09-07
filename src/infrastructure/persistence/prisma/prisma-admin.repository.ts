@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { AdminMapper } from '../../mappers/admin.mapper';
+import { IAdminRepository } from 'src/domain/repositories/admin.repository.interface';
 
 @Injectable()
-export class PrismaAdminRepository {
+export class PrismaAdminRepository implements IAdminRepository {
   constructor(private readonly prisma: PrismaService) {}
 
 

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -48,11 +48,11 @@ export class AuthService {
     try {
       const user = await this.userService.findByEmail(email);
       if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
-        throw new Error('Invalid email or password');
+        throw new NotFoundException('Invalid email or password');
       }
 
       const payload = { sub: user.id, email: user.email, role: 'user' };
-      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      const accessToken = this.jwtService.sign(payload);
 
       return {
         access_token: accessToken,
@@ -77,10 +77,10 @@ export class AuthService {
     try {
       const admin = await this.adminService.findByEmail(_email);
       if (!admin || !admin.password || !(await bcrypt.compare(_password, admin.password))) {
-        throw new Error('Invalid email or password');
+        throw new NotFoundException('Invalid email or password');
       }
       const payload = { sub: admin.id, email: admin.email, role: 'admin' };
-      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      const accessToken = this.jwtService.sign(payload);
       return { access_token: accessToken, admin: { isAdmin: true, isActive: admin.isActive, name: admin.displayName, role: 'ADMIN' } };
     } catch (error) {
       this.logger.error('Admin login error', error);
@@ -101,10 +101,10 @@ export class AuthService {
     try {
       const superAdmin = await this.superAdminService.findByEmail(_email);
       if (!superAdmin || !superAdmin.password || !(await bcrypt.compare(_password, superAdmin.password))) {
-        throw new Error('Invalid email or password');
+        throw new NotFoundException('Invalid email or password');
       }
       const payload = { sub: superAdmin.id, email: superAdmin.email, role: 'super_admin' };
-      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      const accessToken = this.jwtService.sign(payload);
       return { access_token: accessToken, superAdmin: { isAdmin: true, isActive: superAdmin.isActive, name: superAdmin.displayName, role: 'SUPER_ADMIN' } };
     } catch (error) {
       this.logger.error('SuperAdmin login error', error);
@@ -125,10 +125,10 @@ export class AuthService {
     try {
       const artist = await this.artistService.findByEmail(_email);
       if (!artist || !artist.password || !(await bcrypt.compare(_password, artist.password))) {
-        throw new Error('Invalid email or password');
+        throw new NotFoundException('Invalid email or password');
       }
       const payload = { sub: artist.id, email: artist.email, role: 'artist' };
-      const accessToken = this.jwtService.sign(payload, { secret: this.jwtSecret });
+      const accessToken = this.jwtService.sign(payload);
       return { access_token: accessToken, artist: { isAdmin: false, isActive: artist.isActive, name: artist.displayName, role: 'ARTIST' } };
     } catch (error) {
       this.logger.error('Artist login error', error);

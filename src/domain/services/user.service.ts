@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaUserRepository } from '../../infrastructure/persistence/prisma/prisma-user.repository';
 import { UserEntity } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -11,7 +11,7 @@ export class UserService {
 
   async createUser(userDetails: CreateUserParams): Promise<UserEntity> {
     if (!userDetails.email || !userDetails.password) {
-      throw new Error('Email and password are required');
+      throw new BadRequestException('Email and password are required');
     }
     const existingUser = await this.userRepository.findByEmail(userDetails.email);
     if (existingUser) {  
@@ -50,7 +50,7 @@ export class UserService {
   async deleteUser(id: string): Promise<void> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error(`User with id ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
     }
     await this.userRepository.delete(id);
     this.logger.log('User deleted successfully', user.id);
@@ -58,7 +58,7 @@ export class UserService {
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     if (!email || typeof email !== 'string' || !this.isValidEmail(email)) {
-      throw new Error('Valid email is required');
+      throw new BadRequestException('Valid email is required');
     }
     const sanitizedEmail = email.trim().toLowerCase();
     return this.userRepository.findByEmail(sanitizedEmail);

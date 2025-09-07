@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { SuperAdminMapper } from '../../mappers/super-admin.mapper';
+import { ISuperAdminRepository } from 'src/domain/repositories/super-admin.repository.interface';
 
 @Injectable()
-export class PrismaSuperAdminRepository {
+export class PrismaSuperAdminRepository implements ISuperAdminRepository{
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<UserEntity | null> {

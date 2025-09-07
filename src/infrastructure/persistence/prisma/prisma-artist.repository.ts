@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { ArtistMapper } from '../../mappers/artist.mapper';
+import { IArtistRepository } from 'src/domain/repositories/artist.repository.interface';
 
 @Injectable()
-export class PrismaArtistRepository {
+export class PrismaArtistRepository implements IArtistRepository {
   constructor(private readonly prisma: PrismaService) {}
 
 
@@ -12,7 +13,10 @@ export class PrismaArtistRepository {
   async findById(id: string): Promise<UserEntity | null> {
     const artist = await this.prisma.artist.findUnique({ 
       where: { id },
-      include: { profile: true }
+      include: { 
+        profile: true,
+        artistProfiles: true
+      }
     });
     return artist ? ArtistMapper.toDomain(artist) : null;
   }
@@ -20,14 +24,19 @@ export class PrismaArtistRepository {
   async findByEmail(email: string): Promise<UserEntity | null> {
     const artist = await this.prisma.artist.findUnique({ 
       where: { email },
-      include: { profile: true }
+      include: { profile: true,
+        artistProfiles: true
+       }
     });
     return artist ? ArtistMapper.toDomain(artist) : null;
   }
 
   async findAll(): Promise<UserEntity[]> {
     const artists = await this.prisma.artist.findMany({
-      include: { profile: true }
+      include: { 
+        profile: true,
+        artistProfiles: true
+      }
     });
     return ArtistMapper.toDomainArray(artists);
   }

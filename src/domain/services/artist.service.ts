@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaArtistRepository } from '../../infrastructure/persistence/prisma/prisma-artist.repository';
 import { UserEntity } from '../../domain/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -10,7 +10,7 @@ export class ArtistService {
 
   async createArtist(artistDetails: CreateArtistParams): Promise<UserEntity> {
     if (!artistDetails.email || !artistDetails.password) {
-      throw new Error('Email and password are required');
+      throw new BadRequestException('Email and password are required');
     }
     const existingArtist = await this.artistRepository.findByEmail(artistDetails.email);
     if (existingArtist) {
@@ -49,7 +49,7 @@ export class ArtistService {
   async deleteArtist(id: string): Promise<void> {
     const artist = await this.artistRepository.findById(id);
     if (!artist) {
-      throw new Error(`Artist with id ${id} not found`);
+      throw new NotFoundException(`Artist with id ${id} not found`);
     }
     await this.artistRepository.delete(id);
     console.log(`Artist deleted successfully: ${artist.email}`);

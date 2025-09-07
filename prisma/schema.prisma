@@ -179,8 +179,8 @@ model ArtistProfile {
   id              String   @id @default(cuid())
   userId          String?
   artistId        String
-  royaltyRate     Float
-  activeFollowers Int
+  royaltyRate     Float?
+  activeFollowers Int?
   country         String?
   bio             String?
   profileImageUrl String?

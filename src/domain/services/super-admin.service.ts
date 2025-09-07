@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaSuperAdminRepository } from 'src/infrastructure/persistence/prisma/prisma-super-admin.repository';
 import { UserEntity } from '../entities/user.entity';
@@ -10,11 +10,11 @@ export class SuperAdminService {
 
   async createSuperAdmin(superAdminDetails: CreateSuperAdminParams): Promise<UserEntity> {
     if (!superAdminDetails.email || !superAdminDetails.password) {
-      throw new Error('Email and password are required');
+      throw new BadRequestException('Email and password are required');
     }
     const existingSuperAdmin = await this.superAdminRepository.findByEmail(superAdminDetails.email);
     if (existingSuperAdmin) {
-      throw new Error(`Super Admin with email ${superAdminDetails.email} already exists`);
+      throw new ConflictException(`Super Admin with email ${superAdminDetails.email} already exists`);
     }
     const hashedPassword = await bcrypt.hash(superAdminDetails.password, 10);
     const superAdmin = await this.superAdminRepository.create({
@@ -49,7 +49,7 @@ export class SuperAdminService {
   async deleteSuperAdmin(id: string): Promise<void> {
     const superAdmin = await this.superAdminRepository.findById(id);
     if (!superAdmin) {
-      throw new Error(`Super Admin with id ${id} not found`);
+      throw new NotFoundException(`Super Admin with id ${id} not found`);
     }
     await this.superAdminRepository.delete(id);
     console.log('Super Admin created successfully:', superAdmin.email);

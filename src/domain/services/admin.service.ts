@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaAdminRepository } from 'src/infrastructure/persistence/prisma/prisma-admin.repository';
 import { UserEntity } from '../entities/user.entity';
@@ -10,7 +10,7 @@ export class AdminService {
 
   async createAdmin(adminDetails: CreateAdminParams): Promise<UserEntity> {
     if (!adminDetails.email || !adminDetails.password) {
-      throw new Error('Email and password are required');
+      throw new NotFoundException('Email and password are required');
     }
     const existingAdmin = await this.adminRepository.findByEmail(adminDetails.email);
     if (existingAdmin) {
@@ -49,7 +49,7 @@ export class AdminService {
   async deleteAdmin(id: string): Promise<void> {
     const admin = await this.adminRepository.findById(id);
     if (!admin) {
-      throw new Error(`Admin with id ${id} not found`);
+      throw new NotFoundException(`Admin with id ${id} not found`);
     }
     await this.adminRepository.delete(id);
     console.log('Admin deleted successfully:', admin.id);
