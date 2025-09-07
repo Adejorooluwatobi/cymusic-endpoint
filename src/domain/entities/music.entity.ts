@@ -18,6 +18,14 @@ export class MusicEntity {
   shareCount: number;
 
   constructor(data: Partial<MusicEntity>) {
-    Object.assign(this, data);
+    Object.assign(this, {
+      quality: 'medium',
+      isExplicit: false,
+      isPremium: false,
+      playCount: 0,
+      likeCount: 0,
+      shareCount: 0,
+      ...data
+    });
   }
 }

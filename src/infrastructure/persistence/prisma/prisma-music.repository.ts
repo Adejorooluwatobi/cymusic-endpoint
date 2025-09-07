@@ -95,4 +95,76 @@ export class PrismaMusicRepository {
             where: { musicId, playlistId }
         });
     }
+
+    async incrementPlayCount(id: string): Promise<void> {
+  await this.prisma.music.update({
+    where: { id },
+    data: {
+      playCount: {
+        increment: 1
+      }
+    }
+  });
+}
+
+async incrementLikeCount(id: string): Promise<void> {
+  await this.prisma.music.update({
+    where: { id },
+    data: {
+      likeCount: {
+        increment: 1
+      }
+    }
+  });
+}
+
+async incrementShareCount(id: string): Promise<void> {
+  await this.prisma.music.update({
+    where: { id },
+    data: {
+      shareCount: {
+        increment: 1
+      }
+    }
+  });
+}
+
+async findPopular(limit: number = 20): Promise<MusicEntity[]> {
+  const musics = await this.prisma.music.findMany({
+    take: limit,
+    orderBy: [
+      { playCount: 'desc' },
+      { likeCount: 'desc' }
+    ],
+    include: { artist: true }
+  });
+  return MusicMapper.toDomainArray(musics);
+}
+
+async search(query: string): Promise<MusicEntity[]> {
+  const musics = await this.prisma.music.findMany({
+    where: {
+      OR: [
+        { title: { contains: query, mode: 'insensitive' } },
+        { artist: { displayName: { contains: query, mode: 'insensitive' } } }
+      ]
+    },
+    include: { artist: true }
+  });
+  return MusicMapper.toDomainArray(musics);
+}
+
+async findByGenre(genreId: string): Promise<MusicEntity[]> {
+  const musics = await this.prisma.music.findMany({
+    where: { genreId },
+    include: { artist: true }
+  });
+  return MusicMapper.toDomainArray(musics);
+}
+
+async findRecommended(userId: string, limit: number = 20): Promise<MusicEntity[]> {
+  // Simple recommendation based on popular music
+  // You can implement more sophisticated logic later
+  return this.findPopular(limit);
+}
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Put, Body, Param, UseGuards, Request, NotFoundException, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Put, Body, Param, UseGuards, Request, NotFoundException, UseInterceptors, UploadedFiles, Query } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ArtistGuard } from '../auth/guards/artist.guard';
@@ -45,6 +45,10 @@ export class MusicController {
       coverImageUrl = await this.fileUploadService.uploadImageFile(files.cover[0]);
     }
     
+    if (!audioFileUrl) {
+      throw new Error('Audio file is required');
+    }
+    
     const musicParams: CreateMusicParams = {
       ...createMusicDto,
       artistId,
@@ -66,6 +70,11 @@ export class MusicController {
   @ApiOperation({ summary: 'Create music with URLs (Artists only)' })
   async create(@Request() req, @Body() createMusicDto: CreateMusicDto) {
     const artistId = this.extractUserId(req.user).id;
+    
+    if (!createMusicDto.audioFileUrl) {
+      throw new Error('Audio file URL is required');
+    }
+    
     const musicParams: CreateMusicParams = {
       ...createMusicDto,
       artistId,
@@ -171,6 +180,14 @@ export class MusicController {
     const music = await this.musicService.getPopularMusic();
     return { succeeded: true, message: 'Popular music retrieved', resultData: music };
   }
+
+  @Get('search')
+@ApiOperation({ summary: 'Search music (Public)' })
+async searchMusic(@Query('q') query: string) {
+  const music = await this.musicService.searchMusic(query);
+  return { succeeded: true, message: 'Search results retrieved', resultData: music };
+}
+
 
   private extractUserId(user: any): { id: string; type: string } {
     if (user.user?.id) return { id: user.user.id, type: 'user' };

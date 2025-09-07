@@ -8,24 +8,15 @@ export class CreateMusicDto {
   @ApiProperty({ description: 'Music title' })
   title: string;
 
-  @IsUUID()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'Artist ID' })
-  artistId: string;
-
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'Audio file URL' })
-  audioFileUrl: string;
+  @ApiProperty({ description: 'Audio file URL', required: false })
+  audioFileUrl?: string;
 
   @IsOptional()
   @IsString()
   @ApiProperty({ description: 'Cover image URL', required: false })
   coverImageUrl?: string;
-
-  @IsDate()
-  @ApiProperty({ description: 'Upload date' })
-  uploadDate: Date;
 
   @IsOptional()
   @IsUUID()
@@ -38,10 +29,12 @@ export class CreateMusicDto {
   duration?: number;
 
   @IsIn(['low', 'medium', 'high', 'lossless'])
+  @IsOptional()
   @ApiProperty({ description: 'Audio quality', enum: ['low', 'medium', 'high', 'lossless'] })
-  quality: 'low' | 'medium' | 'high' | 'lossless';
+  quality?: 'low' | 'medium' | 'high' | 'lossless';
 
   @IsNumber()
+  @IsOptional()
   @ApiProperty({ description: 'File size in bytes' })
   fileSize: number;
 

@@ -12,7 +12,14 @@ export class MusicMapper {
       createdAt: prismaMusic.createdAt,
       updatedAt: prismaMusic.updatedAt,
       genreId: prismaMusic.genreId || undefined,
-      duration: prismaMusic.duration ? Number(prismaMusic.duration) : undefined
+      duration: prismaMusic.duration ? Number(prismaMusic.duration) : undefined,
+      quality: prismaMusic.quality || 'medium',
+      fileSize: prismaMusic.fileSize ? Number(prismaMusic.fileSize) : undefined,
+      isExplicit: prismaMusic.isExplicit || false,
+      isPremium: prismaMusic.isPremium || false,
+      playCount: prismaMusic.playCount || 0,
+      likeCount: prismaMusic.likeCount || 0,
+      shareCount: prismaMusic.shareCount || 0
     });
   }
 
@@ -21,10 +28,11 @@ export class MusicMapper {
   }
 
   static toPersistence(musicEntity: Partial<MusicEntity>): any {
-    const { duration, ...data } = musicEntity;
+    const { duration, fileSize, ...data } = musicEntity;
     return {
       ...data,
-      ...(duration !== undefined && { duration: String(duration) })
+      ...(duration !== undefined && { duration: String(duration) }),
+      ...(fileSize !== undefined && { fileSize: String(fileSize) })
     };
   }
 }

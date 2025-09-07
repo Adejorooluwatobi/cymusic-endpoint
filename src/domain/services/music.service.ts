@@ -12,10 +12,15 @@ export class MusicService {
   ) {}
 
   async create(musicDetails: CreateMusicParams) {
+    if (!musicDetails.audioFileUrl) {
+      throw new Error('Audio file URL is required');
+    }
+    
     return this.prisma.music.create({
       data: {
         ...musicDetails,
-        duration: musicDetails.duration ? String(musicDetails.duration) : undefined, // Ensure duration is a string
+        audioFileUrl: musicDetails.audioFileUrl,
+        duration: musicDetails.duration ? String(musicDetails.duration) : undefined,
       },
       include: { artist: true },
     });
@@ -54,7 +59,7 @@ export class MusicService {
 
   async update(id: string, artistId: string, musicDetails: UpdateMusicParams) {
     // Prepare update data, omitting artistId to avoid type conflict
-    const { artistId: _, audioFileUrl, ...rest } = musicDetails; // Corrected property name
+    const { audioFileUrl, ...rest } = musicDetails; // Corrected property name
     const updateData: any = {
       ...rest,
     };

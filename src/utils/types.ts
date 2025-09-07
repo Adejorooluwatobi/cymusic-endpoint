@@ -117,26 +117,24 @@ export type UpdatePlaylistParams = {
 export type CreateMusicParams = {
     title: string;
     artistId: string;
-    audioFileUrl: string;
+    audioFileUrl?: string;
     coverImageUrl?: string;
     uploadDate: Date;
     genreId?: string;
     duration?: number;
-    quality: 'low' | 'medium' | 'high' | 'lossless';
-    fileSize: number;
+    quality?: 'low' | 'medium' | 'high' | 'lossless';
+    fileSize?: number;
     isExplicit?: boolean;
     isPremium?: boolean;
-    playCount: number;
-    likeCount: number;
-    shareCount: number;
+    playCount?: number;
+    likeCount?: number;
+    shareCount?: number;
 }
 
 export type UpdateMusicParams = {
     title?: string;
-    artistId?: string;
     audioFileUrl?: string;
     coverImageUrl?: string;
-    uploadDate?: Date;
     genreId?: string;
     duration?: number;
     quality?: 'low' | 'medium' | 'high' | 'lossless';
