@@ -30,7 +30,7 @@ export class UpdateMusicDto {
   @IsOptional()
   @IsString()
   @ApiProperty({ description: 'Music genre', required: false })
-  genre?: string;
+  genreId?: string;
 
   @IsOptional()
   @IsNumber()

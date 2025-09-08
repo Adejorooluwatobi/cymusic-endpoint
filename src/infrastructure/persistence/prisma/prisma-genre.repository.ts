@@ -9,47 +9,50 @@ export class PrismaGenreRepository implements IGenreRepository {
   constructor(private prisma: PrismaService) {}
 
   async findById(id: string): Promise<GenreEntity | null> {
-    // Temporary implementation - return null until Prisma schema is updated
-    return null;
+    const genre = await this.prisma.genre.findUnique({
+      where: { id }
+    });
+    return genre ? GenreMapper.toDomain(genre) : null;
   }
 
   async findAll(): Promise<GenreEntity[]> {
-    // Temporary implementation - return mock genres until Prisma schema is updated
-    return [
-      new GenreEntity({ id: '1', name: 'Hip Hop', createdAt: new Date(), updatedAt: new Date() }),
-      new GenreEntity({ id: '2', name: 'Pop', createdAt: new Date(), updatedAt: new Date() }),
-      new GenreEntity({ id: '3', name: 'Rock', createdAt: new Date(), updatedAt: new Date() })
-    ];
+    const genres = await this.prisma.genre.findMany();
+    return genres.map(genre => GenreMapper.toDomain(genre));
   }
 
   async findByName(name: string): Promise<GenreEntity | null> {
-    // Temporary implementation - return null until Prisma schema is updated
-    return null;
+    const genre = await this.prisma.genre.findFirst({
+      where: { name }
+    });
+    return genre ? GenreMapper.toDomain(genre) : null;
   }
 
   async create(data: Omit<GenreEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<GenreEntity> {
-    // Temporary implementation - create mock entity until Prisma schema is updated
-    return new GenreEntity({
-      id: 'temp-id',
-      name: data.name,
-      description: data.description,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    const genre = await this.prisma.genre.create({
+      data: GenreMapper.toPersistence(data)
     });
+    return GenreMapper.toDomain(genre)
   }
 
   async update(id: string, data: Partial<GenreEntity>): Promise<GenreEntity> {
-    // Temporary implementation - return mock entity until Prisma schema is updated
-    return new GenreEntity({
-      id,
-      name: data.name || 'Updated Genre',
-      description: data.description,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    if (!id || typeof id !== 'string') {
+      throw new Error('Invalid genre ID');
+    }
+    const genre = await this.prisma.genre.update({
+      where: { id },
+      data: GenreMapper.toPersistence(data)
     });
+    return GenreMapper.toDomain(genre);
   }
 
   async delete(id: string): Promise<void> {
-    // Temporary implementation - do nothing until Prisma schema is updated
+    const genre = await this.findById(id);
+    if (!genre) {
+      throw new Error('Genre not found');
+    } else {
+      await this.prisma.genre.delete({
+        where: { id }
+      });
+    }
   }
 }
