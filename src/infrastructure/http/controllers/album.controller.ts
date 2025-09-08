@@ -3,6 +3,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ArtistGuard } from '../auth/guards/artist.guard';
 import { AlbumService } from '../../../domain/services/album.service';
 import { CreateAlbumDto } from '../../../application/dto/album/create-album.dto';
+import { AddMusicToAlbumDto } from '../../../application/dto/album/add-music-to-album.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Albums')
@@ -42,15 +43,25 @@ export class AlbumController {
     return { succeeded: true, message: 'Artist albums retrieved successfully', resultData: albums };
   }
 
-  @Post(':id/music/:musicId')
+  @Post(':id/music')
   @UseGuards(JwtAuthGuard, ArtistGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Add music to album (Album owner only)' })
-  async addMusicToAlbum(@Request() req: any, @Param('id') albumId: string, @Param('musicId') musicId: string) {
+  @ApiOperation({ summary: 'Add multiple music to album (Album owner only)' })
+  async addMusicToAlbum(@Request() req: any, @Param('id') albumId: string, @Body() addMusicDto: AddMusicToAlbumDto) {
     const artistId = this.extractUserId(req.user).id;
-    await this.albumService.addMusicToAlbum(albumId, musicId, artistId);
+    await this.albumService.addMultipleMusicToAlbum(albumId, addMusicDto.musicIds, artistId);
     return { succeeded: true, message: 'Music added to album successfully' };
   }
+
+  // @Post(':id/music/:musicId')
+  // @UseGuards(JwtAuthGuard, ArtistGuard)
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Add single music to album (Album owner only)' })
+  // async addSingleMusicToAlbum(@Request() req: any, @Param('id') albumId: string, @Param('musicId') musicId: string) {
+  //   const artistId = this.extractUserId(req.user).id;
+  //   await this.albumService.addMusicToAlbum(albumId, musicId, artistId);
+  //   return { succeeded: true, message: 'Music added to album successfully' };
+  // }
 
   @Delete(':id/music/:musicId')
   @UseGuards(JwtAuthGuard, ArtistGuard)

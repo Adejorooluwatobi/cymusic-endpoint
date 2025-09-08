@@ -19,7 +19,7 @@ export class AlbumMapper {
   }
 
   static toPersistence(albumEntity: Partial<Album>): any {
-    const { albumMusic, ...data } = albumEntity;
+    const { albumMusic: _albumMusic, ...data } = albumEntity;
     return data;
   }
 }

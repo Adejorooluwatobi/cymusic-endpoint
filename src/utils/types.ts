@@ -1,3 +1,5 @@
+
+
 export type CreateUserParams = {
     email: string;
     password: string;
@@ -87,14 +89,12 @@ export type UpdateProfileParams = {
 }
 
 export type CreateAlbumParams = {
-    userId?: string;
     title: string;
     music?: string[]; // Array of music IDs
     description?: string;
 }
 
 export type UpdateAlbumParams = {
-    userId?: string;
     title?: string;
     music?: string[]; // Array of music IDs
     description?: string;
@@ -163,3 +163,12 @@ export type UpdateArtistProfileParams = {
     isVerified?: boolean;
 }
 
+export type CreateGenreParams = {
+    name: string;
+    description?: string;
+}
+
+export type updateGenreParams = {
+    name?: string;
+    description?: string;
+}

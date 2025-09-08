@@ -8,47 +8,37 @@ import { FollowMapper } from '../../mappers/follow.mapper';
 export class PrismaFollowRepository implements IFollowRepository {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: string): Promise<FollowEntity | null> {
-    // Temporary implementation - return null until Prisma schema is updated
-    return null;
-  }
-
-  async findFollowers(userId: string): Promise<FollowEntity[]> {
-    // Temporary implementation - return empty array until Prisma schema is updated
-    return [];
-  }
-
-  async findFollowing(userId: string): Promise<FollowEntity[]> {
-    // Temporary implementation - return empty array until Prisma schema is updated
-    return [];
-  }
-
-  async isFollowing(followerId: string, followingId: string): Promise<boolean> {
-    // Temporary implementation - return false until Prisma schema is updated
-    return false;
-  }
-
   async create(followerId: string, followingId: string): Promise<FollowEntity> {
-    // Temporary implementation - create mock entity until Prisma schema is updated
-    return new FollowEntity({
-      id: 'temp-id',
-      followerId,
-      followingId,
-      createdAt: new Date()
+    const follow = await this.prisma.follow.create({
+      data: { followerId, followingId }
     });
+    return FollowMapper.toDomain(follow);
   }
 
   async delete(followerId: string, followingId: string): Promise<void> {
-    // Temporary implementation - do nothing until Prisma schema is updated
+    await this.prisma.follow.deleteMany({
+      where: { followerId, followingId }
+    });
   }
 
-  async getFollowerCount(userId: string): Promise<number> {
-    // Temporary implementation - return 0 until Prisma schema is updated
-    return 0;
+  async findFollowers(userId: string): Promise<FollowEntity[]> {
+    const follows = await this.prisma.follow.findMany({
+      where: { followingId: userId }
+    });
+    return follows.map(follow => FollowMapper.toDomain(follow));
   }
 
-  async getFollowingCount(userId: string): Promise<number> {
-    // Temporary implementation - return 0 until Prisma schema is updated
-    return 0;
+  async findFollowerById(artistId: string, followerId: string): Promise<FollowEntity | null> {
+    const follow = await this.prisma.follow.findFirst({
+      where: { followingId: artistId, followerId }
+    });
+    return follow ? FollowMapper.toDomain(follow) : null;
+  }
+
+  async isFollowing(followerId: string, followingId: string): Promise<boolean> {
+    const follow = await this.prisma.follow.findFirst({
+      where: { followerId, followingId }
+    });
+    return !!follow;
   }
 }

@@ -59,9 +59,16 @@ export class PrismaAlbumRepository {
     return AlbumMapper.toDomainArray(albums);
   }
 
-  async addMusic(albumId: string, musicId: string): Promise<void> {
-    await this.prisma.albumMusic.create({
-      data: { albumId, musicId },
+  // async addMusic(albumId: string, musicId: string): Promise<void> {
+  //   await this.prisma.albumMusic.create({
+  //     data: { albumId, musicId },
+  //   });
+  // }
+
+  async addMultipleMusic(albumId: string, musicIds: string[]): Promise<void> {
+    await this.prisma.albumMusic.createMany({
+      data: musicIds.map(musicId => ({ albumId, musicId })),
+      skipDuplicates: true,
     });
   }
 

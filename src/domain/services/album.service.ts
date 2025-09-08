@@ -29,12 +29,20 @@ export class AlbumService {
     return this.albumRepository.findAll();
   }
 
-  async addMusicToAlbum(albumId: string, musicId: string, artistId: string): Promise<void> {
+  // async addMusicToAlbum(albumId: string, musicId: string, artistId: string): Promise<void> {
+  //   const album = await this.albumRepository.findById(albumId);
+  //   if (!album || album.artistId !== artistId) {
+  //     throw new Error('Album not found or access denied');
+  //   }
+  //   await this.albumRepository.addMusic(albumId, musicId);
+  // }
+
+  async addMultipleMusicToAlbum(albumId: string, musicIds: string[], artistId: string): Promise<void> {
     const album = await this.albumRepository.findById(albumId);
     if (!album || album.artistId !== artistId) {
       throw new Error('Album not found or access denied');
     }
-    await this.albumRepository.addMusic(albumId, musicId);
+    await this.albumRepository.addMultipleMusic(albumId, musicIds);
   }
 
   async removeMusicFromAlbum(albumId: string, musicId: string, artistId: string): Promise<void> {

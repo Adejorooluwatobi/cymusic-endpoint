@@ -1,7 +1,7 @@
 export class FollowEntity {
   id: string;
-  followerId: string;
-  followingId: string;
+  followerId: string; //UserId
+  followingId: string; //artistId
   createdAt: Date;
 
   constructor(data: Partial<FollowEntity>) {

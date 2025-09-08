@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { ProfileEntity } from "src/domain/entities/profile.entity";
 import { IProfileRepository } from "src/domain/repositories/profile.repository.interfce";
@@ -59,7 +59,7 @@ export class PrismaProfileRepository implements IProfileRepository {
     async findByUserId(userId: string, userType: string = 'user'): Promise<ProfileEntity | null> {
         const validUserTypes = ['user', 'admin', 'superAdmin', 'artist'];
         if (!validUserTypes.includes(userType)) {
-            throw new Error('Invalid user type');
+            throw new NotFoundException('Invalid user type');
         }
         
         const whereClause: Record<string, string> = {};
@@ -97,7 +97,7 @@ export class PrismaProfileRepository implements IProfileRepository {
 
     async update(id: string, profileData: Partial<Omit<ProfileEntity, 'user'>>): Promise<ProfileEntity> {
         if (!id || typeof id !== 'string') {
-            throw new Error('Invalid profile ID');
+            throw new NotFoundException('Invalid profile ID');
         }
         const profile = await this.prisma.profile.update({ 
             where: { id }, 
@@ -109,7 +109,7 @@ export class PrismaProfileRepository implements IProfileRepository {
 
     async delete(id: string): Promise<void> {
         if (!id || typeof id !== 'string') {
-            throw new Error('Invalid profile ID');
+            throw new NotFoundException('Invalid profile ID');
         }
         await this.prisma.profile.delete({ where: { id } });
     }

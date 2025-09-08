@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { MusicEntity } from "src/domain/entities/music.entity";
 import { PrismaService } from "./prisma.service";
 import { MusicMapper } from '../../mappers/music.mapper';
@@ -54,7 +54,7 @@ export class PrismaMusicRepository {
 
     async update(id: string, data: Partial<MusicEntity>, artistId: string): Promise<MusicEntity | null> {
         if (!id || typeof id !== 'string' || !artistId || typeof artistId !== 'string') {
-            throw new Error('Invalid music ID or artist ID');
+            throw new ConflictException('Invalid music ID or artist ID');
         }
         
         const music = await this.prisma.music.findFirst({
@@ -75,7 +75,7 @@ export class PrismaMusicRepository {
 
     async findByTitle(title: string): Promise<MusicEntity[]> {
         if (!title || typeof title !== 'string') {
-            throw new Error('Invalid title parameter');
+            throw new NotFoundException('Invalid title parameter');
         }
         const musics = await this.prisma.music.findMany({
             where: { title: { contains: title, mode: 'insensitive' } },
@@ -165,6 +165,33 @@ async findByGenre(genreId: string): Promise<MusicEntity[]> {
 async findRecommended(userId: string, limit: number = 20): Promise<MusicEntity[]> {
   // Simple recommendation based on popular music
   // You can implement more sophisticated logic later
+  // if (!userId) {
+  //   return this.findPopular(limit);
+  // } else {
+  //   const user = await this.prisma.user.findUnique({
+  //     where: { id: userId },
+  //     include: { likedMusics: true }
+  //   });
+
+  //   if (!user) {
+  //     return this.findPopular(limit);
+  //   }
+
+  //   const likedMusicIds = user.likedMusics.map(music => music.id);
+  //   const recommendedMusics = await this.prisma.music.findMany({
+  //     where: {
+  //       NOT: { id: { in: likedMusicIds } }
+  //     },
+  //     take: limit,
+  //     orderBy: [
+  //       { playCount: 'desc' },
+  //       { likeCount: 'desc' }
+  //     ],
+  //     include: { artist: true }
+  //   });
+
+  //   return MusicMapper.toDomainArray(recommendedMusics);
+  // } 
   return this.findPopular(limit);
 }
 }

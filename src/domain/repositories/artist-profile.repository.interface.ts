@@ -8,4 +8,5 @@ export interface IArtistProfileRepository {
   delete(artistId: string): Promise<void>;
   findAll(): Promise<ArtistProfile[]>;
   findById(id: string): Promise<ArtistProfile | null>;
+  updateFollowerCount(artistId: string, increment: boolean): Promise<void>;
 }

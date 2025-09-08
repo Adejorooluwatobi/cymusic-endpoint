@@ -54,4 +54,15 @@ async delete(id: string): Promise<void> {
   await this.prisma.artistProfile.delete({where: {id}})
 }
 
+async updateFollowerCount(artistId: string, increment: boolean): Promise<void> {
+  await this.prisma.artistProfile.updateMany({
+    where: { artistId },
+    data: {
+      activeFollowers: {
+        [increment ? 'increment' : 'decrement']: 1
+      }
+    }
+  });
+}
+
 }

@@ -1,12 +1,13 @@
 import { Injectable, ConflictException, NotFoundException, Inject } from '@nestjs/common';
 import { GenreEntity } from '../entities/genre.entity';
 import type { IGenreRepository } from '../repositories/genre.repository.interface';
+import { CreateGenreParams, updateGenreParams } from 'src/utils/types';
 
 @Injectable()
 export class GenreService {
   constructor(@Inject('IGenreRepository') private readonly genreRepository: IGenreRepository) {}
 
-  async createGenre(data: { name: string; description?: string }): Promise<GenreEntity> {
+  async createGenre(data: CreateGenreParams): Promise<GenreEntity> {
     const existing = await this.genreRepository.findByName(data.name);
     if (existing) {
       throw new ConflictException(`Genre ${data.name} already exists`);
@@ -26,7 +27,7 @@ export class GenreService {
     return genre;
   }
 
-  async updateGenre(id: string, data: Partial<GenreEntity>): Promise<GenreEntity> {
+  async updateGenre(id: string,data: updateGenreParams): Promise<GenreEntity> {
     await this.getGenreById(id);
     return this.genreRepository.update(id, data);
   }

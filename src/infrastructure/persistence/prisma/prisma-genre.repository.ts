@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { IGenreRepository } from '../../../domain/repositories/genre.repository.interface';
 import { GenreEntity } from '../../../domain/entities/genre.entity';
@@ -36,7 +36,7 @@ export class PrismaGenreRepository implements IGenreRepository {
 
   async update(id: string, data: Partial<GenreEntity>): Promise<GenreEntity> {
     if (!id || typeof id !== 'string') {
-      throw new Error('Invalid genre ID');
+      throw new NotFoundException('Invalid genre ID');
     }
     const genre = await this.prisma.genre.update({
       where: { id },
@@ -48,7 +48,7 @@ export class PrismaGenreRepository implements IGenreRepository {
   async delete(id: string): Promise<void> {
     const genre = await this.findById(id);
     if (!genre) {
-      throw new Error('Genre not found');
+      throw new NotFoundException('Genre not found');
     } else {
       await this.prisma.genre.delete({
         where: { id }

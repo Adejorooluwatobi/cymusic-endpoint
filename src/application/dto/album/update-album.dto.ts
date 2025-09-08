@@ -36,12 +36,12 @@ export class UpdateAlbumDto {
   })
   description?: string;
 
-  @IsOptional()
-  @IsString()
-  @ApiProperty({
-    description: 'User ID of the album owner',
-    example: '12345',
-    required: false,
-  })
-  userId?: string;
+  // @IsOptional()
+  // @IsString()
+  // @ApiProperty({
+  //   description: 'User ID of the album owner',
+  //   example: '12345',
+  //   required: false,
+  // })
+  // userId?: string;
 }
